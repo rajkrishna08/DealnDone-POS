@@ -1,0 +1,102 @@
+name: DealNDone 2025 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    name: Backend Tests (FastAPI + Pytest)
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio
+    
+    - name: Run backend tests
+      run: |
+        cd backend
+        python -m pytest test_api.py -v
+    
+    - name: Test FastAPI endpoints
+      run: |
+        cd backend
+        python test_api.py
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    name: Frontend Tests (React)
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm test -- --watchAll=false --coverage
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan (OWASP ZAP)
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run OWASP ZAP scan
+      uses: zaproxy/action-full-scan@v0.8.0
+      with:
+        target: 'http://localhost:8000'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+
+  deploy-staging:
+    needs: [test-backend, test-frontend, security-scan]
+    runs-on: ubuntu-latest
+    name: Deploy to Staging (Azure Container Apps)
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Azure Container Apps
+      run: |
+        echo "Deploying to Azure Container Apps staging environment"
+        # Azure deployment commands will be added here
+
+  deploy-production:
+    needs: [test-backend, test-frontend, security-scan]
+    runs-on: ubuntu-latest
+    name: Deploy to Production (Azure Container Apps)
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Azure Container Apps
+      run: |
+        echo "Deploying to Azure Container Apps production environment"
+        # Azure deployment commands will be added here 

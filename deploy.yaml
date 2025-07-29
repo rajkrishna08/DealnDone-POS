@@ -1,0 +1,118 @@
+name: DealNDone 2025 - Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AZURE_CONTAINER_REGISTRY: dealndone2025.azurecr.io
+  AZURE_CONTAINER_APPS_ENVIRONMENT: dealndone2025-env
+  AZURE_RESOURCE_GROUP: dealndone2025-rg
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Azure Container Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.AZURE_CONTAINER_REGISTRY }}
+        username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+    
+    - name: Build and push backend image
+      run: |
+        docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-backend:${{ github.sha }} ./backend
+        docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-backend:${{ github.sha }}
+    
+    - name: Build and push frontend image
+      run: |
+        docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-frontend:${{ github.sha }} ./frontend
+        docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-frontend:${{ github.sha }}
+    
+    - name: Deploy to Azure Container Apps
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}
+        acrName: ${{ env.AZURE_CONTAINER_REGISTRY }}
+        acrUsername: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        acrPassword: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+        containerAppName: dealndone2025-backend
+        resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+        imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-backend:${{ github.sha }}
+        targetPort: 8000
+        ingress: external
+        allowInsecure: false
+        cpu: 0.5
+        memory: 1.0Gi
+        minReplicas: 1
+        maxReplicas: 10
+        envVars: |
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          AZURE_WORKSPACE_ID=${{ secrets.AZURE_WORKSPACE_ID }}
+          AZURE_WORKSPACE_KEY=${{ secrets.AZURE_WORKSPACE_KEY }}
+
+  deploy-frontend:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Deploy Frontend to Azure Container Apps
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}
+        acrName: ${{ env.AZURE_CONTAINER_REGISTRY }}
+        acrUsername: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+        acrPassword: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+        containerAppName: dealndone2025-frontend
+        resourceGroup: ${{ env.AZURE_RESOURCE_GROUP }}
+        imageToDeploy: ${{ env.AZURE_CONTAINER_REGISTRY }}/dealndone-frontend:${{ github.sha }}
+        targetPort: 3000
+        ingress: external
+        allowInsecure: false
+        cpu: 0.25
+        memory: 0.5Gi
+        minReplicas: 1
+        maxReplicas: 5
+        envVars: |
+          REACT_APP_API_URL=https://dealndone2025-backend.azurecontainerapps.io
+          REACT_APP_ENVIRONMENT=production
+
+  health-check:
+    needs: [build-and-deploy, deploy-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Health check backend
+      run: |
+        sleep 30  # Wait for deployment
+        curl -f https://dealndone2025-backend.azurecontainerapps.io/health || exit 1
+    
+    - name: Health check frontend
+      run: |
+        sleep 30  # Wait for deployment
+        curl -f https://dealndone2025-frontend.azurecontainerapps.io || exit 1
+    
+    - name: Notify deployment success
+      run: |
+        echo "✅ DealNDone 2025 deployed successfully to Azure Container Apps!"
+        echo "🌐 Backend: https://dealndone2025-backend.azurecontainerapps.io"
+        echo "🎨 Frontend: https://dealndone2025-frontend.azurecontainerapps.io" 

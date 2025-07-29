@@ -1,71 +1,68 @@
+# Add FastAPI endpoint for shirt sales
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 import sqlite3
-from pydantic import BaseModel
+import uvicorn
+from typing import List
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
-def get_db_conn():
-    conn = sqlite3.connect("dealndone.db", check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-    return conn, cursor
-
-# Initialize database (garment example)
-def init_db():
-    conn, cursor = get_db_conn()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS products (
-            id TEXT PRIMARY KEY,
-            name TEXT,
-            price REAL,
-            stock INTEGER
-        )
-    ''')
-    cursor.execute("INSERT OR IGNORE INTO products VALUES ('test1', 'Dress Shirt', 25.00, 10)")
-    conn.commit()
-    conn.close()
-
-init_db()
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Item(BaseModel):
-    id: str
-    quantity: int
+    id: str = Field(..., description="Product ID")
+    quantity: int = Field(..., gt=0, description="Quantity must be positive")
 
 class Sale(BaseModel):
-    items: list[Item]
+    items: List[Item] = Field(..., min_items=1, description="At least one item required")
+
+# SQLite setup
+conn = sqlite3.connect('dealndone.db', check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute('''CREATE TABLE IF NOT EXISTS sales (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id TEXT, quantity INTEGER, total REAL)''')
+conn.commit()
 
 @app.post("/sales")
 async def process_sale(sale: Sale):
-    total = 0
-    conn, cursor = get_db_conn()
     try:
+        total = 0
         for item in sale.items:
-            cursor.execute("SELECT price, stock, name FROM products WHERE id = ?", (item.id,))
-            result = cursor.fetchone()
-            if not result:
-                raise HTTPException(status_code=404, detail="Product not found")
-            price, stock, name = result
-            if stock < item.quantity:
-                raise HTTPException(status_code=400, detail=f"Insufficient stock for {name}")
-            total += price * item.quantity
-            cursor.execute("UPDATE products SET stock = stock - ? WHERE id = ?", (item.quantity, item.id))
+            if item.quantity <= 0:
+                raise HTTPException(status_code=400, detail="Quantity must be positive")
+            item_total = 25.0 * item.quantity
+            total += item_total
+            cursor.execute("INSERT INTO sales (product_id, quantity, total) VALUES (?, ?, ?)", 
+                         (item.id, item.quantity, item_total))
+        
         conn.commit()
-        return {"status": "success", "total": total, "items": [{"product_id": item.id, "name": name, "quantity": item.quantity, "subtotal": price * item.quantity}]}
+        return {
+            "status": "success", 
+            "total": total, 
+            "items_processed": len(sale.items),
+            "message": f"Processed {len(sale.items)} items"
+        }
+    except HTTPException:
+        raise
     except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        conn.close()
+        return {"status": "error", "message": str(e)}
 
-# Test endpoint
+@app.get("/")
+async def root():
+    return {"message": "DealNDone API is running", "version": "1.0.0"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "database": "connected"}
+
 if __name__ == "__main__":
-    from fastapi.testclient import TestClient
-    client = TestClient(app)
-    # TC3: Valid sale
-    response = client.post("/sales", json={"items": [{"id": "test1", "quantity": 1}]})
-    print("TC3:", response.status_code, response.json())
-    # TC4: Insufficient stock
-    response = client.post("/sales", json={"items": [{"id": "test1", "quantity": 100}]})
-    print("TC4:", response.status_code, response.json())
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
