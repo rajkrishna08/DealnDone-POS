@@ -117,6 +117,58 @@ async def get_currency_rates():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get currency rates: {str(e)}")
 
+@app.get("/products")
+async def get_products():
+    """Get all products for the products page"""
+    try:
+        # Sample products data - in production this would come from database
+        products = [
+            {
+                "id": 1,
+                "name": "Printed Cotton Jacket",
+                "price": "$45.00",
+                "stock": 999,
+                "tags": ["Unisex", "Bag"],
+                "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBc2-0RRlpoVIj72SwUQyf7MZI0wFjpsArvtVoE77rhSOWy815pswQV2_bHq8WxDxeTXV2Jb5dIVMNgXzryE0mdOaGg_1FJbz1sbOSkByyYbCWIl6Ko1seWE_dt7UK5eOIJbZinPNKLvDAYicDTAT2bQObmn7YuTtC5NiS2p1OGudLqTnFkmvIZDIAHF5pEd8EivxihyPrLZ5_n_br4ks03SKVGfN8P4f9kXYdtLJHjlhKuBwLhXbyvNM4H40rDCkjL8i2bMg27Lg"
+            },
+            {
+                "id": 2,
+                "name": "Blue Faux Leather",
+                "price": "$25.00",
+                "stock": 102,
+                "tags": ["Unisex", "Bag"],
+                "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBc2-0RRlpoVIj72SwUQyf7MZI0wFjpsArvtVoE77rhSOWy815pswQV2_bHq8WxDxeTXV2Jb5dIVMNgXzryE0mdOaGg_1FJbz1sbOSkByyYbCWIl6Ko1seWE_dt7UK5eOIJbZinPNKLvDAYicDTAT2bQObmn7YuTtC5NiS2p1OGudLqTnFkmvIZDIAHF5pEd8EivxihyPrLZ5_n_br4ks03SKVGfN8P4f9kXYdtLJHjlhKuBwLhXbyvNM4H40rDCkjL8i2bMg27Lg"
+            },
+            {
+                "id": 3,
+                "name": "Classic White Shirt",
+                "price": "$35.00",
+                "stock": 250,
+                "tags": ["Men", "Shirt"],
+                "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBc2-0RRlpoVIj72SwUQyf7MZI0wFjpsArvtVoE77rhSOWy815pswQV2_bHq8WxDxeTXV2Jb5dIVMNgXzryE0mdOaGg_1FJbz1sbOSkByyYbCWIl6Ko1seWE_dt7UK5eOIJbZinPNKLvDAYicDTAT2bQObmn7YuTtC5NiS2p1OGudLqTnFkmvIZDIAHF5pEd8EivxihyPrLZ5_n_br4ks03SKVGfN8P4f9kXYdtLJHjlhKuBwLhXbyvNM4H40rDCkjL8i2bMg27Lg"
+            },
+            {
+                "id": 4,
+                "name": "Premium Denim Jacket",
+                "price": "$65.00",
+                "stock": 75,
+                "tags": ["Unisex", "Jacket"],
+                "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBc2-0RRlpoVIj72SwUQyf7MZI0wFjpsArvtVoE77rhSOWy815pswQV2_bHq8WxDxeTXV2Jb5dIVMNgXzryE0mdOaGg_1FJbz1sbOSkByyYbCWIl6Ko1seWE_dt7UK5eOIJbZinPNKLvDAYicDTAT2bQObmn7YuTtC5NiS2p1OGudLqTnFkmvIZDIAHF5pEd8EivxihyPrLZ5_n_br4ks03SKVGfN8P4f9kXYdtLJHjlhKuBwLhXbyvNM4H40rDCkjL8i2bMg27Lg"
+            },
+            {
+                "id": 5,
+                "name": "Casual Summer Dress",
+                "price": "$40.00",
+                "stock": 120,
+                "tags": ["Women", "Dress"],
+                "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBc2-0RRlpoVIj72SwUQyf7MZI0wFjpsArvtVoE77rhSOWy815pswQV2_bHq8WxDxeTXV2Jb5dIVMNgXzryE0mdOaGg_1FJbz1sbOSkByyYbCWIl6Ko1seWE_dt7UK5eOIJbZinPNKLvDAYicDTAT2bQObmn7YuTtC5NiS2p1OGudLqTnFkmvIZDIAHF5pEd8EivxihyPrLZ5_n_br4ks03SKVGfN8P4f9kXYdtLJHjlhKuBwLhXbyvNM4H40rDCkjL8i2bMg27Lg"
+            }
+        ]
+        
+        return {"products": products, "total": len(products)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get products: {str(e)}")
+
 @app.get("/")
 async def root():
     return {"message": "DealNDone API is running", "version": "1.0.0"}
