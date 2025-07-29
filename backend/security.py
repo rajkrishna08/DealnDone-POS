@@ -11,11 +11,12 @@ import os
 # Security configuration
 SECURITY_CONFIG = {
     "azure_ad": {
-        "tenant_id": os.getenv("AZURE_TENANT_ID", ""),
-        "client_id": os.getenv("AZURE_CLIENT_ID", ""),
-        "client_secret": os.getenv("AZURE_CLIENT_SECRET", ""),
-        "authority": f"https://login.microsoftonline.com/{os.getenv('AZURE_TENANT_ID', '')}",
-        "scope": ["api://your-app-id/access_as_user"]
+        "tenant_id": os.getenv("AZURE_AD_TENANT_ID", ""),
+        "client_id": os.getenv("AZURE_AD_CLIENT_ID", ""),
+        "client_secret": os.getenv("AZURE_AD_CLIENT_SECRET", ""),
+        "authority": f"https://login.microsoftonline.com/{os.getenv('AZURE_AD_TENANT_ID', '')}",
+        "scope": ["api://your-app-id/access_as_user"],
+        "mfa_required": True
     },
     "jwt": {
         "secret_key": os.getenv("JWT_SECRET_KEY", "your-secret-key"),
@@ -62,11 +63,24 @@ class SecurityManager:
             
             if response.status_code == 200:
                 user_info = response.json()
+                
+                # Check MFA status
+                mfa_response = requests.get(
+                    f"https://graph.microsoft.com/v1.0/me/authentication/methods",
+                    headers=headers
+                )
+                
+                mfa_enabled = False
+                if mfa_response.status_code == 200:
+                    methods = mfa_response.json().get("value", [])
+                    mfa_enabled = any(method.get("type") in ["microsoftAuthenticator", "phone"] for method in methods)
+                
                 return {
                     "valid": True,
                     "user_id": user_info.get("id"),
                     "email": user_info.get("userPrincipalName"),
-                    "name": user_info.get("displayName")
+                    "name": user_info.get("displayName"),
+                    "mfa_enabled": mfa_enabled
                 }
             else:
                 return {"valid": False, "error": "Invalid token"}

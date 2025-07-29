@@ -90,13 +90,83 @@ jobs:
   deploy-production:
     needs: [test-backend, test-frontend, security-scan]
     runs-on: ubuntu-latest
-    name: Deploy to Production (Azure Container Apps)
+    name: Deploy to Production (Multi-Region Azure Container Apps)
     if: github.ref == 'refs/heads/main'
+    
+    strategy:
+      matrix:
+        region: [eastus, southeastasia, westeurope]
     
     steps:
     - uses: actions/checkout@v4
     
-    - name: Deploy to Azure Container Apps
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Deploy to Azure Container Apps - ${{ matrix.region }}
       run: |
-        echo "Deploying to Azure Container Apps production environment"
-        # Azure deployment commands will be added here 
+        echo "Deploying to Azure Container Apps in ${{ matrix.region }}"
+        
+        # Set Azure CLI to use the specific region
+        az configure --defaults location=${{ matrix.region }}
+        
+        # Deploy backend
+        az containerapp up \
+          --name dealndone-backend-${{ matrix.region }} \
+          --resource-group dealndone-rg-${{ matrix.region }} \
+          --source backend \
+          --location ${{ matrix.region }} \
+          --environment dealndone-env-${{ matrix.region }} \
+          --registry-server ${{ secrets.REGISTRY_LOGIN_SERVER }} \
+          --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+          --registry-password ${{ secrets.REGISTRY_PASSWORD }}
+        
+        # Deploy frontend
+        az containerapp up \
+          --name dealndone-frontend-${{ matrix.region }} \
+          --resource-group dealndone-rg-${{ matrix.region }} \
+          --source frontend \
+          --location ${{ matrix.region }} \
+          --environment dealndone-env-${{ matrix.region }} \
+          --registry-server ${{ secrets.REGISTRY_LOGIN_SERVER }} \
+          --registry-username ${{ secrets.REGISTRY_USERNAME }} \
+          --registry-password ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - name: Configure Traffic Manager
+      if: matrix.region == 'eastus'
+      run: |
+        echo "Configuring Azure Traffic Manager for multi-region load balancing"
+        
+        # Create Traffic Manager profile
+        az network traffic-manager profile create \
+          --name dealndone-tm \
+          --resource-group dealndone-rg-eastus \
+          --routing-method Performance \
+          --unique-dns-name dealndone2025
+        
+        # Add endpoints for each region
+        az network traffic-manager endpoint create \
+          --name eastus-endpoint \
+          --profile-name dealndone-tm \
+          --resource-group dealndone-rg-eastus \
+          --type externalEndpoints \
+          --target dealndone-frontend-eastus.azurecontainerapps.io \
+          --priority 1
+        
+        az network traffic-manager endpoint create \
+          --name southeastasia-endpoint \
+          --profile-name dealndone-tm \
+          --resource-group dealndone-rg-eastus \
+          --type externalEndpoints \
+          --target dealndone-frontend-southeastasia.azurecontainerapps.io \
+          --priority 2
+        
+        az network traffic-manager endpoint create \
+          --name westeurope-endpoint \
+          --profile-name dealndone-tm \
+          --resource-group dealndone-rg-eastus \
+          --type externalEndpoints \
+          --target dealndone-frontend-westeurope.azurecontainerapps.io \
+          --priority 3 
