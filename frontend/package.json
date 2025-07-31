@@ -40,5 +40,10 @@
     "tailwindcss": "^3.3.0",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.24"
-  }
-} 
+  },
+  "description": "A modern React-based Point of Sale system for men's garments.",
+  "main": "postcss.config.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -2,16 +2,212 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Deal n Done, Inc. Design System */
+@layer base {
+  :root {
+    --deal-n-done-primary: 217 91% 60%;
+    --deal-n-done-primary-dark: 217 91% 50%;
+    --deal-n-done-secondary: 210 40% 96%;
+    --deal-n-done-accent: 262 90% 95%;
+    --deal-n-done-success: 142 76% 36%;
+    --deal-n-done-warning: 38 92% 50%;
+    --deal-n-done-error: 0 84% 60%;
+    --deal-n-done-text: 222 84% 5%;
+    --deal-n-done-text-muted: 215 16% 47%;
+    --deal-n-done-border: 214 32% 91%;
+    --deal-n-done-background: 0 0% 100%;
+    --deal-n-done-card: 0 0% 100%;
+    --deal-n-done-radius: 0.5rem;
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer base {
+  body {
+    @apply bg-white text-gray-900;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Deal n Done Card Components */
+.deal-n-done-card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm p-6;
+}
+
+/* Deal n Done Button Components */
+.deal-n-done-btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center gap-2;
+}
+
+.deal-n-done-btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-4 rounded-md border border-gray-300 transition-colors duration-200 flex items-center gap-2;
+}
+
+/* Deal n Done Table Components */
+.deal-n-done-table {
+  @apply w-full bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm;
+}
+
+.deal-n-done-table th {
+  @apply bg-gray-50 text-gray-900 font-semibold p-4 text-left border-b border-gray-200;
+}
+
+.deal-n-done-table td {
+  @apply p-4 border-b border-gray-200;
+}
+
+.deal-n-done-table tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Deal n Done Sidebar */
+.deal-n-done-sidebar {
+  @apply w-64 bg-white border-r border-gray-200 h-screen overflow-y-auto;
+}
+
+.deal-n-done-sidebar .sidebar-item {
+  @apply flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200 cursor-pointer;
+}
+
+.deal-n-done-sidebar .sidebar-item.active {
+  @apply bg-blue-100 text-blue-700 border-r-2 border-blue-600;
+}
+
+.deal-n-done-sidebar .sidebar-item .icon {
+  @apply w-5 h-5;
+}
+
+.deal-n-done-sidebar .sidebar-submenu {
+  @apply ml-8 mt-1;
+}
+
+/* SHOPTIQUES Dark Theme Sidebar */
+.shopticues-sidebar {
+  @apply w-64 bg-gray-900 border-r border-gray-700 h-screen overflow-y-auto;
+}
+
+.shopticues-sidebar .sidebar-item {
+  @apply flex items-center gap-3 px-4 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors duration-200 cursor-pointer;
+}
+
+.shopticues-sidebar .sidebar-item.active {
+  @apply bg-blue-600 text-white border-l-4 border-blue-400;
+}
+
+.shopticues-sidebar .sidebar-item .icon {
+  @apply w-5 h-5;
+}
+
+.shopticues-sidebar .sidebar-submenu {
+  @apply ml-6 mt-1;
+}
+
+/* Deal n Done Header */
+.deal-n-done-header {
+  @apply bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center;
+}
+
+.deal-n-done-header .title {
+  @apply text-xl font-bold text-gray-900;
+}
+
+.deal-n-done-header .actions {
+  @apply flex items-center gap-4;
+}
+
+.deal-n-done-header .user-profile {
+  @apply flex items-center gap-3;
+}
+
+.deal-n-done-header .user-avatar {
+  @apply w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium;
+}
+
+/* Permission Badges */
+.permission-badge {
+  @apply px-2 py-1 rounded text-xs font-medium;
+}
+
+.permission-badge.none {
+  @apply bg-gray-100 text-gray-600;
+}
+
+.permission-badge.view-only {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.permission-badge.full {
+  @apply bg-green-100 text-green-700;
+}
+
+.permission-badge.add-edit {
+  @apply bg-yellow-100 text-yellow-700;
+}
+
+.permission-badge.yes {
+  @apply bg-green-100 text-green-700;
+}
+
+.permission-badge.no {
+  @apply bg-red-100 text-red-700;
+}
+
+/* Modern Components */
+.modern-card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm p-6;
+}
+
+.modern-btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center gap-2;
+}
+
+.modern-btn-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium py-2 px-4 rounded-md border border-gray-300 transition-colors duration-200 flex items-center gap-2;
+}
+
+.modern-table {
+  @apply w-full bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm;
+}
+
+.modern-table th {
+  @apply bg-gray-50 text-gray-900 font-semibold p-4 text-left border-b border-gray-200;
+}
+
+.modern-table td {
+  @apply p-4 border-b border-gray-200;
+}
+
+.modern-table tr:hover {
+  @apply bg-gray-50;
+}
+
+.modern-header {
+  @apply bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center;
+}
+
+.modern-header .title {
+  @apply text-xl font-bold text-gray-900;
+}
+
+.modern-header .actions {
+  @apply flex items-center gap-4;
+}
+
+.modern-header .user-profile {
+  @apply flex items-center gap-3;
+}
+
+.modern-header .user-avatar {
+  @apply w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-medium;
+}
+
+@media (max-width: 768px) {
+  .deal-n-done-sidebar {
+    @apply w-full h-auto;
+  }
+  
+  .deal-n-done-sidebar.open {
+    @apply block;
+  }
 } 
