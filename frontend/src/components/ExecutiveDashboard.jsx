@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const ExecutiveDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
 
   // Mock data for executive
   const executiveData = {

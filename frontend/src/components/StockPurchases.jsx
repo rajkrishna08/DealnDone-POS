@@ -8,55 +8,11 @@ const StockPurchases = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Dummy data for stock purchases
-  const purchaseOrders = [
-    {
-      id: 'PO-001',
-      supplier: 'Fashion Wholesale Co.',
-      orderDate: '2025-01-30',
-      expectedDelivery: '2025-02-05',
-      status: 'Pending',
-      totalAmount: 2500,
-      items: [
-        { product: 'Classic White Shirt', quantity: 50, unitPrice: 25, total: 1250 },
-        { product: 'Blue Oxford Shirt', quantity: 30, unitPrice: 30, total: 900 },
-        { product: 'Black Formal Shirt', quantity: 20, unitPrice: 35, total: 700 }
-      ]
-    },
-    {
-      id: 'PO-002',
-      supplier: 'Textile Traders Ltd.',
-      orderDate: '2025-01-28',
-      expectedDelivery: '2025-02-02',
-      status: 'In Transit',
-      totalAmount: 1800,
-      items: [
-        { product: 'Denim Jeans', quantity: 40, unitPrice: 45, total: 1800 }
-      ]
-    },
-    {
-      id: 'PO-003',
-      supplier: 'Accessories Plus',
-      orderDate: '2025-01-25',
-      expectedDelivery: '2025-01-30',
-      status: 'Delivered',
-      totalAmount: 1200,
-      items: [
-        { product: 'Leather Belt', quantity: 60, unitPrice: 20, total: 1200 }
-      ]
-    },
-    {
-      id: 'PO-004',
-      supplier: 'Premium Fabrics Inc.',
-      orderDate: '2025-01-22',
-      expectedDelivery: '2025-01-28',
-      status: 'Delivered',
-      totalAmount: 2100,
-      items: [
-        { product: 'Silk Blouse', quantity: 30, unitPrice: 40, total: 1200 },
-        { product: 'Cotton Dress', quantity: 25, unitPrice: 36, total: 900 }
-      ]
-    }
-  ];
+  const [purchaseOrders] = useState([
+    { id: 'PO-001', supplier: 'Tech Supplies Inc', status: 'Pending', total: 5000, date: '2025-08-01' },
+    { id: 'PO-002', supplier: 'Electronics Plus', status: 'Approved', total: 3200, date: '2025-07-30' },
+    { id: 'PO-003', supplier: 'Digital Warehouse', status: 'Received', total: 1800, date: '2025-07-28' }
+  ]);
 
   const suppliers = [
     { id: 1, name: 'Fashion Wholesale Co.', contact: 'John Smith', email: 'john@fashionwholesale.com', phone: '+1-555-0123', rating: 4.5, totalOrders: 25, totalSpent: 45000 },
@@ -110,15 +66,15 @@ const StockPurchases = () => {
   };
 
   const handleCreateOrder = () => {
-    const order = {
-      id: `PO-${Date.now()}`,
-      supplier: newOrder.supplier,
-      orderDate: new Date().toISOString().split('T')[0],
-      expectedDelivery: newOrder.expectedDelivery,
-      status: 'Pending',
-      totalAmount: newOrder.items.reduce((sum, item) => sum + item.total, 0),
-      items: newOrder.items
-    };
+    // const order = { // Commented out unused variable
+    //   id: `PO-${Date.now()}`,
+    //   supplier: newOrder.supplier,
+    //   orderDate: new Date().toISOString().split('T')[0],
+    //   expectedDelivery: newOrder.expectedDelivery,
+    //   status: 'Pending',
+    //   totalAmount: newOrder.items.reduce((sum, item) => sum + item.total, 0),
+    //   items: newOrder.items
+    // };
     // setPurchaseOrders([order, ...purchaseOrders]); // This line was removed as per the edit hint
     setNewOrder({ supplier: '', expectedDelivery: '', items: [] });
     setShowCreateOrder(false);
@@ -243,7 +199,7 @@ const StockPurchases = () => {
                     <tr key={order.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 font-medium text-gray-900">{order.id}</td>
                       <td className="py-3 px-4 text-gray-600">{order.supplier}</td>
-                      <td className="py-3 px-4 text-gray-600">{order.orderDate}</td>
+                      <td className="py-3 px-4 text-gray-600">{order.date}</td>
                       <td className="py-3 px-4 text-gray-600">{order.expectedDelivery}</td>
                       <td className="py-3 px-4 text-center">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
@@ -251,7 +207,7 @@ const StockPurchases = () => {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center font-medium text-gray-900">
-                        ${order.totalAmount.toLocaleString()}
+                        ${order.total.toLocaleString()}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <div className="flex justify-center space-x-2">

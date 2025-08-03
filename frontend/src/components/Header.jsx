@@ -1,4 +1,13 @@
 import React from 'react';
+import { 
+  Menu, 
+  Plus, 
+  Download, 
+  Bell, 
+  MessageSquare, 
+  User,
+  ChevronDown
+} from 'lucide-react';
 
 const Header = ({ user, selectedCurrency, setSelectedCurrency }) => {
   return (
@@ -9,7 +18,7 @@ const Header = ({ user, selectedCurrency, setSelectedCurrency }) => {
           onClick={() => {/* toggle sidebar */}}
           aria-label="Expand sidebar menu"
         >
-          <span className="text-lg mr-1">☰</span>
+          <Menu className="w-4 h-4 mr-1" />
           Menu
         </button>
       </div>
@@ -17,19 +26,19 @@ const Header = ({ user, selectedCurrency, setSelectedCurrency }) => {
       <div className="flex items-center space-x-4">
         {/* Quick Actions */}
         <button className="deal-n-done-btn-primary flex items-center text-sm">
-          <span className="text-lg mr-1">+</span>
+          <Plus className="w-4 h-4 mr-1" />
           Add Product
         </button>
         
         <button className="deal-n-done-btn-secondary flex items-center text-sm">
-          <span className="text-lg mr-1">📤</span>
+          <Download className="w-4 h-4 mr-1" />
           Export
         </button>
 
         {/* Notifications */}
         <div className="relative">
           <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-            <span className="text-lg">🔔</span>
+            <Bell className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
               3
             </span>
@@ -38,13 +47,13 @@ const Header = ({ user, selectedCurrency, setSelectedCurrency }) => {
 
         {/* AI Assistant Quick Access */}
         <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-          <span className="text-lg">🤖</span>
+          <MessageSquare className="w-5 h-5" />
         </button>
 
         {/* User Profile */}
         <div className="deal-n-done-header user-profile">
           <div className="deal-n-done-header user-avatar">
-            {user.name.split(' ').map(n => n[0]).join('')}
+            <User className="w-5 h-5" />
           </div>
           <div className="text-right">
             <div className="text-sm font-medium">{user.name}</div>

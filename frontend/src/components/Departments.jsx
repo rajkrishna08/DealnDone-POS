@@ -6,7 +6,7 @@ const Departments = () => {
   const [showCreateDepartment, setShowCreateDepartment] = useState(false);
 
   // Use centralized dummy data
-  const { departments, categories } = dummyData.departments;
+  const { departments } = dummyData.departments;
 
   const [newDepartment, setNewDepartment] = useState({
     name: '',

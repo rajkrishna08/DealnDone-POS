@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal n Done - Modern POS for Your Business</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .plan-card.popular {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .plan-card.popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-period {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            padding: 0.5rem 0;
+            color: #555;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .plan-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .plan-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-plan-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-plan-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-plan-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-plan-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-plan-contact {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-plan-contact:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            margin: 5vh auto;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .modal-sidebar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .modal-main {
+            flex: 1.5;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .subdomain-input {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .subdomain-input:focus-within {
+            border-color: #667eea;
+        }
+
+        .subdomain-input input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .subdomain-input input:focus {
+            outline: none;
+        }
+
+        .subdomain-suffix {
+            background: #f8f9fa;
+            padding: 12px;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .subdomain-status {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-available {
+            color: #28a745;
+        }
+
+        .status-taken {
+            color: #dc3545;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .plan-card.popular {
+                transform: none;
+            }
+
+            .modal-content {
+                flex-direction: column;
+                margin: 2vh auto;
+                max-height: 96vh;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">Deal n Done</div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <div class="nav-buttons">
+                <a href="#" class="btn btn-outline" onclick="openModal('login')">Login</a>
+                <a href="#" class="btn btn-primary" onclick="openModal('signup')">Get Started</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Modern POS for Smart Businesses</h1>
+            <p>Streamline your sales, manage inventory, and grow your business with our cloud-based POS system. Get your personalized subdomain and start selling today.</p>
+            <div class="cta-buttons">
+                <button class="btn btn-primary btn-large" onclick="openModal('signup')">Start Free Trial</button>
+                <button class="btn btn-outline btn-large" onclick="scrollToPricing()">View Pricing</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>Choose Your Perfect Plan</h2>
+                <p>Start with any plan and upgrade as your business grows</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Basic Plan -->
+                <div class="plan-card">
+                    <div class="plan-name">Basic</div>
+                    <div class="plan-price">$29</div>
+                    <div class="plan-period">per month</div>
+                    <ul class="plan-features">
+                        <li>Up to 500 products</li>
+                        <li>Basic sales tracking</li>
+                        <li>Email support</li>
+                        <li>2 user accounts</li>
+                        <li>Basic reporting</li>
+                        <li>yourstore.dealndone.com</li>
+                    </ul>
+                    <button class="plan-button btn-plan-secondary" onclick="selectPlan('basic')">Choose Basic</button>
+                </div>
+
+                <!-- Professional Plan -->
+                <div class="plan-card popular">
+                    <div class="plan-name">Professional</div>
+                    <div class="plan-price">$79</div>
+                    <div class="plan-period">per month</div>
+                    <ul class="plan-features">
+                        <li>Up to 5,000 products</li>
+                        <li>Advanced analytics</li>
+                        <li>Priority support</li>
+                        <li>10 user accounts</li>
+                        <li>Inventory management</li>
+                        <li>Custom reports</li>
+                        <li>API access</li>
+                        <li>yourstore.dealndone.com</li>
+                    </ul>
+                    <button class="plan-button btn-plan-primary" onclick="selectPlan('professional')">Choose Professional</button>
+                </div>
+
+                <!-- Enterprise Plan -->
+                <div class="plan-card">
+                    <div class="plan-name">Enterprise</div>
+                    <div class="plan-price">$199</div>
+                    <div class="plan-period">per month</div>
+                    <ul class="plan-features">
+                        <li>Unlimited products</li>
+                        <li>Custom integrations</li>
+                        <li>24/7 phone support</li>
+                        <li>Unlimited users</li>
+                        <li>Advanced reporting</li>
+                        <li>Multi-location support</li>
+                        <li>White-label branding</li>
+                        <li>Dedicated account manager</li>
+                        <li>Custom subdomain</li>
+                    </ul>
+                    <button class="plan-button btn-plan-primary" onclick="selectPlan('enterprise')">Choose Enterprise</button>
+                </div>
+
+                <!-- Custom Plan -->
+                <div class="plan-card">
+                    <div class="plan-name">Custom</div>
+                    <div class="plan-price">Let's Talk</div>
+                    <div class="plan-period">custom pricing</div>
+                    <ul class="plan-features">
+                        <li>Everything in Enterprise</li>
+                        <li>Custom development</li>
+                        <li>On-premise deployment</li>
+                        <li>Custom SLA</li>
+                        <li>Dedicated infrastructure</li>
+                        <li>Custom integrations</li>
+                        <li>Priority feature requests</li>
+                        <li>Custom domain</li>
+                    </ul>
+                    <button class="plan-button btn-plan-contact" onclick="contactSales()">Contact Sales</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            
+            <div class="modal-sidebar">
+                <div class="logo" style="font-size: 28px; margin-bottom: 1rem;">Deal n Done</div>
+                <p>Join thousands of businesses already using our POS system to streamline their operations and boost sales.</p>
+                <div style="margin-top: 2rem;">
+                    <div style="font-size: 2rem; font-weight: bold;">10,000+</div>
+                    <div style="opacity: 0.9;">Active businesses</div>
+                </div>
+            </div>
+
+            <div class="modal-main">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('signup')">Sign Up</button>
+                    <button class="tab" onclick="switchTab('login')">Login</button>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupTab" class="tab-content active">
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <label for="businessName">Business Name</label>
+                            <input type="text" id="businessName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subdomain">Choose Your Subdomain</label>
+                            <div class="subdomain-input">
+                                <input type="text" id="subdomain" placeholder="your-business" required>
+                                <span class="subdomain-suffix">.dealndone.com</span>
+                            </div>
+                            <div id="subdomainStatus" class="subdomain-status"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone (Optional)</label>
+                            <input type="tel" id="phone">
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginTab" class="tab-content">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                                Login
+                            </button>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 1rem;">
+                            <a href="#" style="color: #667eea; text-decoration: none;">Forgot Password?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+        let selectedPlanType = 'professional';
+
+        // Modal functions
+        function openModal(tab = 'signup') {
+            document.getElementById('authModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            switchTab(tab);
+        }
+
+        function closeModal() {
+            document.getElementById('authModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tab}Tab`).classList.add('active');
+        }
+
+        function selectPlan(plan) {
+            selectedPlanType = plan;
+            openModal('signup');
+        }
+
+        function contactSales() {
+            alert('Contact our sales team at sales@dealndone.com or call (555) 123-4567');
+        }
+
+        function scrollToPricing() {
+            document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Subdomain checking
+        let subdomainCheckTimeout;
+        document.getElementById('subdomain').addEventListener('input', function() {
+            clearTimeout(subdomainCheckTimeout);
+            const subdomain = this.value.trim();
+            
+            if (subdomain.length < 3) {
+                document.getElementById('subdomainStatus').innerHTML = '';
+                return;
+            }
+
+            subdomainCheckTimeout = setTimeout(() => {
+                checkSubdomainAvailability(subdomain);
+            }, 500);
+        });
+
+        async function checkSubdomainAvailability(subdomain) {
+            try {
+                const response = await fetch(`${API_BASE}/auth/check-subdomain/${subdomain}`);
+                const data = await response.json();
+
+                const statusEl = document.getElementById('subdomainStatus');
+                if (data.available) {
+                    statusEl.innerHTML = `<span class="status-available">✓ ${subdomain}.dealndone.com is available</span>`;
+                } else {
+                    statusEl.innerHTML = `<span class="status-taken">✗ ${data.message}</span>`;
+                    if (data.suggested) {
+                        statusEl.innerHTML += `<br><span style="color: #666;">Try: ${data.suggested}</span>`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking subdomain:', error);
+            }
+        }
+
+        // Form handlers
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            const formData = {
+                business_name: document.getElementById('businessName').value,
+                email: document.getElementById('email').value,
+                subdomain: document.getElementById('subdomain').value,
+                password: password,
+                confirm_password: confirmPassword,
+                plan_type: selectedPlanType,
+                phone: document.getElementById('phone').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    alert(`Welcome! Your account has been created with ${data.user_info.plan_type} plan.`);
+                    window.location.href = 'pos.html';
+                } else {
+                    alert(data.detail || 'Signup failed');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+                console.error('Signup error:', error);
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    alert(`Welcome back!`);
+                    window.location.href = 'pos.html';
+                } else {
+                    alert(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Auto-fill subdomain based on business name
+        document.getElementById('businessName').addEventListener('input', function() {
+            const businessName = this.value.toLowerCase()
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .substring(0, 20);
+            
+            if (businessName && !document.getElementById('subdomain').value) {
+                document.getElementById('subdomain').value = businessName;
+                if (businessName.length >= 3) {
+                    checkSubdomainAvailability(businessName);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

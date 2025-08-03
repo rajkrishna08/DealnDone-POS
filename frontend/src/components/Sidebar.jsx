@@ -1,65 +1,107 @@
 import React, { useState } from 'react';
+import { 
+  Home, 
+  ShoppingCart, 
+  Package, 
+  Users, 
+  Settings, 
+  BarChart3, 
+  Globe, 
+  UserCheck,
+  Shield,
+  FileText,
+  CreditCard,
+  Building2,
+  TrendingUp,
+  MessageSquare,
+  Heart,
+  DollarSign,
+  Wallet,
+  ChevronDown,
+  Zap,
+  Smartphone
+} from 'lucide-react';
 
-const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, onNavigateToSettingsSubmodule }) => {
+const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
   const [expandedMenus, setExpandedMenus] = useState([]);
 
   const menuItems = [
-    { name: 'Dashboard', icon: '🏠', path: 'dashboard' },
-    { name: 'Sales', icon: '🛒', path: 'pos' },
+    { name: 'Dashboard', icon: <Home className="w-5 h-5" />, path: 'owner-dashboard' },
+    {
+      name: 'Sales',
+      icon: <ShoppingCart className="w-5 h-5" />,
+      hasSubmenu: true,
+      submenu: ['Sales Orders', 'Sales History', 'Cash Registers', 'Cash Management', 'Sales Quotes', 'Sales Invoices', 'Sales Returns', 'Sales Analytics', 'Sales Targets']
+    },
     {
       name: 'Products',
-      icon: '📋',
+      icon: <Package className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Product Catalog', 'Product Categories', 'Product Variants', 'Product Images', 'Product Pricing', 'Product Reviews']
     },
     {
       name: 'Customers',
-      icon: '👥',
+      icon: <Users className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Customer Directory', 'Customer Groups', 'Customer Loyalty', 'Customer Feedback', 'Customer Analytics', 'Customer Support']
     },
     {
-      name: 'Sales Management',
-      icon: '💰',
-      hasSubmenu: true,
-      submenu: ['Sales Orders', 'Sales History', 'Cash Registers', 'Cash Management', 'Sales Quotes', 'Sales Invoices', 'Sales Returns', 'Sales Analytics', 'Sales Targets']
-    },
-    {
       name: 'Marketing',
-      icon: '📢',
+      icon: <TrendingUp className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Campaigns', 'Promotions', 'Email Marketing', 'Social Media', 'Marketing Analytics', 'Lead Management']
     },
     {
       name: 'Inventory',
-      icon: '📦',
+      icon: <Package className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Inventory Dashboard', 'Stock Purchases', 'Stock Transfers', 'Stock Returns', 'Stock Take', 'Departments', 'Vendors']
     },
     {
       name: 'Reports',
-      icon: '📊',
+      icon: <BarChart3 className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Sales Reports', 'Inventory Reports', 'Customer Reports', 'Financial Reports', 'Analytics Dashboard', 'Custom Reports']
     },
     {
       name: 'Settings',
-      icon: '⚙️',
+      icon: <Settings className="w-5 h-5" />,
       hasSubmenu: true,
-      submenu: ['General Setup', 'Billing & Subscription', 'Outlets & Registers', 'Loyalty Program', 'Employees', 'Sales Tax', 'Payment Types']
+      submenu: ['Store Settings', 'General Setup', 'Billing & Subscription', 'Outlets & Registers', 'Loyalty Program', 'Employees', 'Sales Tax', 'Payment Types', 'Security & Access']
     },
     {
       name: 'Employees',
-      icon: '👥',
+      icon: <UserCheck className="w-5 h-5" />,
       hasSubmenu: true,
       submenu: ['Employee Management', 'Roles & Permissions', 'Timesheets']
     },
-    { name: 'Landing', icon: '🌐', path: 'landing' }
+    { name: 'DealBot AI', icon: <MessageSquare className="w-5 h-5" />, path: 'dealbot-ai' },
+    { name: 'MCP Dashboard', icon: <Zap className="w-5 h-5" />, path: 'mcp-dashboard' },
+    { name: 'Orchestrator Monitor', icon: <Zap className="w-5 h-5" />, path: 'orchestrator-monitor' },
+    { name: 'Landing', icon: <Globe className="w-5 h-5" />, path: 'landing' },
+    {
+      name: 'Mobile POS',
+      href: 'mobile-pos',
+      icon: <Smartphone className="w-5 h-5" />,
+      description: 'Mobile Point of Sale'
+    },
+    {
+      name: 'Enhanced POS',
+      href: 'pos-v2',
+      icon: <Zap className="w-5 h-5" />,
+      description: 'Next-Gen Sales Screen'
+    },
+    {
+      name: 'Modern POS',
+      href: 'modern-pos',
+      icon: <ShoppingCart className="w-5 h-5" />,
+      description: 'Complete Sales & Receipt System'
+    }
   ];
 
   const handleMenuClick = (itemName) => {
     if (itemName === 'Settings' || itemName === 'Employees' || itemName === 'Inventory' || itemName === 'Products' || 
-        itemName === 'Customers' || itemName === 'Sales Management' || itemName === 'Marketing' || itemName === 'Reports') {
+        itemName === 'Customers' || itemName === 'Sales' || itemName === 'Marketing' || itemName === 'Reports') {
       // Toggle expanded state for all menu types
       setExpandedMenus(prev => 
         prev.includes(itemName) 
@@ -70,185 +112,188 @@ const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, 
       // Handle regular menu items
       const menuItem = menuItems.find(item => item.name === itemName);
       if (menuItem && menuItem.path) {
-        setCurrentView(menuItem.path);
+        onNavigate(menuItem.path);
       }
     }
   };
 
   const handleSubmenuClick = (parentItem, subItem) => {
     if (parentItem === 'Settings') {
-      setCurrentView('settings');
-      onNavigateToSettingsSubmodule(subItem);
+      // Handle settings submodules
+      switch (subItem) {
+        case 'Store Settings':
+          onNavigate('settings');
+          break;
+        case 'General Setup':
+          onNavigate('general-setup');
+          break;
+        case 'Billing & Subscription':
+          onNavigate('pricing-plans-settings');
+          break;
+        case 'Outlets & Registers':
+          onNavigate('outlets-registers');
+          break;
+        case 'Loyalty Program':
+          onNavigate('loyalty-program');
+          break;
+        case 'Employees':
+          onNavigate('employees');
+          break;
+        case 'Sales Tax':
+          onNavigate('sales-tax');
+          break;
+        case 'Payment Types':
+          onNavigate('payment-types');
+          break;
+        case 'Security & Access':
+          onNavigate('security-access');
+          break;
+        default:
+          onNavigate('settings');
+      }
     } else if (parentItem === 'Employees') {
-      setCurrentView('employees');
-      if (subItem === 'Roles & Permissions') {
-        onNavigateToEmployeesSubmodule('roles');
-      } else if (subItem === 'Employees') {
-        onNavigateToEmployeesSubmodule('employees');
-      } else if (subItem === 'Timesheets') {
-        onNavigateToEmployeesSubmodule('timesheets');
+      // Handle employee submodules
+      switch (subItem) {
+        case 'Roles & Permissions':
+          onNavigate('roles');
+          break;
+        case 'Employee Management':
+          onNavigate('employees');
+          break;
+        case 'Timesheets':
+          onNavigate('timesheets');
+          break;
+        default:
+          onNavigate('employees');
       }
     } else if (parentItem === 'Products') {
-      setCurrentView('products');
       // Handle product submodules
       switch (subItem) {
         case 'Product Catalog':
-          setCurrentView('product-catalog');
+          onNavigate('product-catalog');
           break;
         case 'Product Categories':
-          setCurrentView('product-categories');
-          break;
-        case 'Product Variants':
-          setCurrentView('product-variants');
-          break;
-        case 'Product Images':
-          setCurrentView('product-images');
-          break;
-        case 'Product Pricing':
-          setCurrentView('product-pricing');
-          break;
-        case 'Product Reviews':
-          setCurrentView('product-reviews');
+          onNavigate('product-categories');
           break;
         default:
-          setCurrentView('product-catalog');
+          onNavigate('products');
       }
     } else if (parentItem === 'Customers') {
-      setCurrentView('customers');
       // Handle customer submodules
       switch (subItem) {
         case 'Customer Directory':
-          setCurrentView('customer-directory');
+          onNavigate('customer-directory');
           break;
         case 'Customer Groups':
-          setCurrentView('customer-groups');
+          onNavigate('customer-groups');
           break;
         case 'Customer Loyalty':
-          setCurrentView('customer-loyalty');
+          onNavigate('customer-loyalty');
           break;
         case 'Customer Feedback':
-          setCurrentView('customer-feedback');
+          onNavigate('customer-feedback');
           break;
         case 'Customer Analytics':
-          setCurrentView('customer-analytics');
+          onNavigate('customer-analytics');
           break;
         case 'Customer Support':
-          setCurrentView('customer-support');
+          onNavigate('customer-support');
           break;
         default:
-          setCurrentView('customer-directory');
+          onNavigate('customer-directory');
       }
-    } else if (parentItem === 'Sales Management') {
-      setCurrentView('sales-management');
-      // Handle sales management submodules
+    } else if (parentItem === 'Sales') {
+      // Handle sales submodules
       switch (subItem) {
         case 'Sales Orders':
-          setCurrentView('sales-orders');
+          onNavigate('sales-orders');
           break;
         case 'Sales History':
-          setCurrentView('sales-history');
+          onNavigate('sales-history');
           break;
         case 'Cash Registers':
-          setCurrentView('cash-registers');
+          onNavigate('cash-registers');
           break;
         case 'Cash Management':
-          setCurrentView('cash-management');
+          onNavigate('cash-management');
           break;
         case 'Sales Quotes':
-          setCurrentView('sales-quotes');
+          onNavigate('sales-quotes');
           break;
         case 'Sales Invoices':
-          setCurrentView('sales-invoices');
+          onNavigate('sales-invoices');
           break;
         case 'Sales Returns':
-          setCurrentView('sales-returns');
+          onNavigate('sales-returns');
           break;
         case 'Sales Analytics':
-          setCurrentView('sales-analytics');
+          onNavigate('sales-analytics');
           break;
         case 'Sales Targets':
-          setCurrentView('sales-targets');
+          onNavigate('sales-targets');
           break;
         default:
-          setCurrentView('sales-orders');
+          onNavigate('pos-screen');
       }
     } else if (parentItem === 'Marketing') {
-      setCurrentView('marketing');
       // Handle marketing submodules
       switch (subItem) {
         case 'Campaigns':
-          setCurrentView('marketing-campaigns');
-          break;
-        case 'Promotions':
-          setCurrentView('promotions');
-          break;
-        case 'Email Marketing':
-          setCurrentView('email-marketing');
-          break;
-        case 'Social Media':
-          setCurrentView('social-media');
-          break;
-        case 'Marketing Analytics':
-          setCurrentView('marketing-analytics');
-          break;
-        case 'Lead Management':
-          setCurrentView('lead-management');
+          onNavigate('marketing-campaigns');
           break;
         default:
-          setCurrentView('marketing-campaigns');
-      }
-    } else if (parentItem === 'Reports') {
-      setCurrentView('reports');
-      // Handle reports submodules
-      switch (subItem) {
-        case 'Sales Reports':
-          setCurrentView('sales-reports');
-          break;
-        case 'Inventory Reports':
-          setCurrentView('inventory-reports');
-          break;
-        case 'Customer Reports':
-          setCurrentView('customer-reports');
-          break;
-        case 'Financial Reports':
-          setCurrentView('financial-reports');
-          break;
-        case 'Analytics Dashboard':
-          setCurrentView('analytics-dashboard');
-          break;
-        case 'Custom Reports':
-          setCurrentView('custom-reports');
-          break;
-        default:
-          setCurrentView('sales-reports');
+          onNavigate('marketing-campaigns');
       }
     } else if (parentItem === 'Inventory') {
-      setCurrentView('inventory');
       // Handle inventory submodules
       switch (subItem) {
         case 'Inventory Dashboard':
-          setCurrentView('inventory-dashboard');
+          onNavigate('inventory-dashboard');
           break;
         case 'Stock Purchases':
-          setCurrentView('stock-purchases');
+          onNavigate('stock-purchases');
           break;
         case 'Stock Transfers':
-          setCurrentView('stock-transfers');
+          onNavigate('stock-transfers');
           break;
         case 'Stock Returns':
-          setCurrentView('stock-returns');
+          onNavigate('stock-returns');
           break;
         case 'Stock Take':
-          setCurrentView('stock-take');
+          onNavigate('stock-take');
           break;
         case 'Departments':
-          setCurrentView('departments');
+          onNavigate('departments');
           break;
         case 'Vendors':
-          setCurrentView('vendors');
+          onNavigate('vendors');
           break;
         default:
-          setCurrentView('inventory-dashboard');
+          onNavigate('inventory-dashboard');
+      }
+    } else if (parentItem === 'Reports') {
+      // Handle reports submodules
+      switch (subItem) {
+        case 'Sales Reports':
+          onNavigate('sales-reports');
+          break;
+        case 'Inventory Reports':
+          onNavigate('inventory-reports');
+          break;
+        case 'Customer Reports':
+          onNavigate('customer-reports');
+          break;
+        case 'Financial Reports':
+          onNavigate('financial-reports');
+          break;
+        case 'Analytics Dashboard':
+          onNavigate('analytics-dashboard');
+          break;
+        case 'Custom Reports':
+          onNavigate('custom-reports');
+          break;
+        default:
+          onNavigate('sales-reports');
       }
     }
   };
@@ -258,14 +303,27 @@ const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, 
       {/* Brand Logo */}
       <div className="p-6 border-b border-gray-700 bg-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-lg">D</span>
+          <div className="p-2 bg-blue-600 rounded-lg">
+            <Zap className="w-6 h-6 text-white" />
           </div>
           <div>
             <h1 className="font-bold text-xl text-white">Deal n Done</h1>
             <p className="text-xs text-gray-300">Point of Sale</p>
           </div>
         </div>
+        {user && (
+          <div className="mt-4 pt-4 border-t border-gray-700">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-300">{user.email}</span>
+              <button
+                onClick={onLogout}
+                className="text-sm text-red-400 hover:text-red-300"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation Menu */}
@@ -274,7 +332,19 @@ const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, 
           {menuItems.map((item) => (
             <div key={item.name}>
               <button
-                onClick={() => handleMenuClick(item.name)}
+                onClick={() => {
+                  if (item.name === 'Sales') {
+                    // For Sales module, show POS screen but also toggle submenu
+                    onNavigate('pos-screen');
+                    setExpandedMenus(prev => 
+                      prev.includes(item.name) 
+                        ? prev.filter(menu => menu !== item.name)
+                        : [...prev, item.name]
+                    );
+                  } else {
+                    handleMenuClick(item.name);
+                  }
+                }}
                 className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-all duration-200 hover:bg-gray-800 ${
                   currentView === item.path ? 'bg-blue-600 text-white border-l-4 border-blue-400' : 'text-gray-300'
                 }`}
@@ -284,13 +354,12 @@ const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, 
                   <span className="font-medium">{item.name}</span>
                 </div>
                 {item.hasSubmenu && (
-                  <span className={`text-gray-400 transition-transform duration-200 ${
+                  <ChevronDown className={`text-gray-400 transition-transform duration-200 w-4 h-4 ${
                     expandedMenus.includes(item.name) ? 'rotate-180' : ''
-                  }`}>
-                    ▼
-                  </span>
+                  }`} />
                 )}
               </button>
+              
               {item.hasSubmenu && expandedMenus.includes(item.name) && (
                 <div className="ml-6 mt-1 space-y-1">
                   {item.submenu.map((sub, index) => (
@@ -302,16 +371,18 @@ const Sidebar = ({ currentView, setCurrentView, onNavigateToEmployeesSubmodule, 
                       onClick={() => handleSubmenuClick(item.name, sub)}
                     >
                       <span className="text-sm">
-                        {item.name === 'Settings' && sub === 'General Setup' ? '⚙️' :
-                         item.name === 'Settings' && sub === 'Billing & Subscription' ? '💰' :
-                         item.name === 'Settings' && sub === 'Outlets & Registers' ? '🏪' :
-                         item.name === 'Settings' && sub === 'Loyalty Program' ? '🎁' :
-                         item.name === 'Settings' && sub === 'Employees' ? '👥' :
-                         item.name === 'Settings' && sub === 'Sales Tax' ? '🧾' :
-                         item.name === 'Settings' && sub === 'Payment Types' ? '💳' :
-                         item.name === 'Employees' && sub === 'Employee Management' ? '👥' :
-                         item.name === 'Employees' && sub === 'Roles & Permissions' ? '🛡️' :
-                         item.name === 'Employees' && sub === 'Timesheets' ? '📅' : '•'}
+                        {item.name === 'Settings' && sub === 'General Setup' ? <Settings className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Billing & Subscription' ? <CreditCard className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Outlets & Registers' ? <Building2 className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Loyalty Program' ? <Heart className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Employees' ? <Users className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Sales Tax' ? <DollarSign className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Payment Types' ? <Wallet className="w-4 h-4" /> :
+                         item.name === 'Settings' && sub === 'Security & Access' ? <Shield className="w-4 h-4" /> :
+                         item.name === 'Employees' && sub === 'Employee Management' ? <Users className="w-4 h-4" /> :
+                         item.name === 'Employees' && sub === 'Roles & Permissions' ? <Shield className="w-4 h-4" /> :
+                         item.name === 'Employees' && sub === 'Timesheets' ? <FileText className="w-4 h-4" /> : 
+                         <span className="w-4 h-4">•</span>}
                       </span>
                       <span className="font-medium">{sub}</span>
                     </button>

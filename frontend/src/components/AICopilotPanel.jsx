@@ -27,7 +27,7 @@ const AICopilotPanel = () => {
   // API call to backend DealBot
   const callDealBotAPI = async (message) => {
     try {
-      const response = await fetch('http://localhost:8000/dealbots/chat', {
+              const response = await fetch('http://localhost:8005/dealbots/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ const AICopilotPanel = () => {
   // Execute DealBot action
   const executeDealBotAction = async (action, data = {}) => {
     try {
-      const response = await fetch('http://localhost:8000/dealbots/action', {
+              const response = await fetch('http://localhost:8005/dealbots/action', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

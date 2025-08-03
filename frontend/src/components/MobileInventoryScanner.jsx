@@ -1,8 +1,6 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { products } from '../data/dummyData';
+import React, { useState, useRef, useMemo } from 'react';
 
 const MobileInventoryScanner = () => {
-  const [scannedCode, setScannedCode] = useState('');
   const [scanResult, setScanResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const [scanHistory, setScanHistory] = useState([]);
@@ -13,10 +11,15 @@ const MobileInventoryScanner = () => {
   const [error, setError] = useState('');
 
   // Memoize products to prevent unnecessary re-renders
-  const memoizedProducts = useMemo(() => products, []);
+  const memoizedProducts = useMemo(() => [
+    { id: 1, name: 'iPhone 15 Pro', barcode: '123456789', price: 999.99, stock: 25, category: 'Electronics' },
+    { id: 2, name: 'Samsung Galaxy S24', barcode: '987654321', price: 899.99, stock: 18, category: 'Electronics' },
+    { id: 3, name: 'MacBook Air M2', barcode: '456789123', price: 1199.99, stock: 12, category: 'Computers' },
+    { id: 4, name: 'Nike Air Max', barcode: '789123456', price: 129.99, stock: 45, category: 'Footwear' },
+    { id: 5, name: 'Sony WH-1000XM5', barcode: '321654987', price: 349.99, stock: 30, category: 'Audio' }
+  ], []);
 
   const videoRef = useRef(null);
-  const canvasRef = useRef(null);
 
   // Simulate barcode scanning
   const simulateScan = () => {
@@ -28,7 +31,6 @@ const MobileInventoryScanner = () => {
       const randomProduct = memoizedProducts[Math.floor(Math.random() * memoizedProducts.length)];
       const scannedCode = randomProduct.barcode;
       
-      setScannedCode(scannedCode);
       setScanResult(randomProduct);
       
       // Add to scan history
@@ -49,7 +51,6 @@ const MobileInventoryScanner = () => {
     const product = memoizedProducts.find(p => p.barcode === code);
     
     if (product) {
-      setScannedCode(code);
       setScanResult(product);
       setError('');
       
@@ -94,7 +95,6 @@ const MobileInventoryScanner = () => {
 
   // Clear scan results
   const clearResults = () => {
-    setScannedCode('');
     setScanResult(null);
     setError('');
   };

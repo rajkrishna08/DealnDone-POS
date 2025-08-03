@@ -5,7 +5,7 @@ const StockTake = () => {
   const [showCreateSession, setShowCreateSession] = useState(false);
 
   // Dummy data for stock take
-  const sessions = [
+  const [stockTakeSessions] = useState([
     {
       id: 'ST-001',
       location: 'Main Store',
@@ -39,33 +39,10 @@ const StockTake = () => {
       varianceCount: 5,
       notes: 'Monthly branch stock take'
     }
-  ];
+  ]);
 
   const locations = [
     'Main Store', 'Warehouse', 'Downtown Branch', 'Online Store', 'Outlet Mall', 'Airport Location'
-  ];
-
-  const varianceReports = [
-    {
-      id: 1,
-      sessionId: 'ST-001',
-      productName: 'Classic White Shirt',
-      expectedQuantity: 45,
-      actualQuantity: 42,
-      variance: -3,
-      varianceType: 'Shortage',
-      notes: 'Found 3 items damaged'
-    },
-    {
-      id: 2,
-      sessionId: 'ST-001',
-      productName: 'Blue Oxford Shirt',
-      expectedQuantity: 32,
-      actualQuantity: 35,
-      variance: 3,
-      varianceType: 'Surplus',
-      notes: 'Extra items found in storage'
-    }
   ];
 
   const [newSession, setNewSession] = useState({
@@ -151,7 +128,7 @@ const StockTake = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sessions.map((session) => (
+                    {stockTakeSessions.map((session) => (
                       <tr key={session.id} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-3 px-4 font-medium text-gray-900">{session.id}</td>
                         <td className="py-3 px-4 text-gray-600">{session.location}</td>

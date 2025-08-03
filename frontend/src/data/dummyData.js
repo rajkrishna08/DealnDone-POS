@@ -37,7 +37,9 @@ export const products = [
     barcode: "1234567890123",
     image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=300&h=200&fit=crop",
     description: "Ultra HD 4K resolution with Smart TV features",
-    locations: ["Main Store - Aisle 3", "Downtown Branch - Aisle 1"]
+    locations: ["Main Store - Aisle 3", "Downtown Branch - Aisle 1"],
+    onSale: true,
+    isNew: false
   },
   {
     id: 2,
@@ -48,7 +50,9 @@ export const products = [
     barcode: "1234567890124",
     image: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=300&h=200&fit=crop",
     description: "Latest iPhone with advanced camera system",
-    locations: ["Main Store - Aisle 2", "Downtown Branch - Aisle 1"]
+    locations: ["Main Store - Aisle 2", "Downtown Branch - Aisle 1"],
+    onSale: false,
+    isNew: true
   },
   {
     id: 3,
@@ -59,7 +63,9 @@ export const products = [
     barcode: "1234567890125",
     image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=300&h=200&fit=crop",
     description: "Lightweight laptop with M2 chip",
-    locations: ["Main Store - Aisle 4"]
+    locations: ["Main Store - Aisle 4"],
+    onSale: false,
+    isNew: true
   },
   {
     id: 4,
@@ -70,7 +76,9 @@ export const products = [
     barcode: "1234567890126",
     image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=200&fit=crop",
     description: "Premium noise-cancelling wireless headphones",
-    locations: ["Main Store - Aisle 1", "Downtown Branch - Aisle 2"]
+    locations: ["Main Store - Aisle 1", "Downtown Branch - Aisle 2"],
+    onSale: true,
+    isNew: false
   },
   {
     id: 5,
@@ -81,7 +89,9 @@ export const products = [
     barcode: "1234567890127",
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop",
     description: "Energy-efficient front load washing machine",
-    locations: ["Main Store - Aisle 5"]
+    locations: ["Main Store - Aisle 5"],
+    onSale: false,
+    isNew: false
   },
   {
     id: 6,
@@ -92,7 +102,9 @@ export const products = [
     barcode: "1234567890128",
     image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=200&fit=crop",
     description: "Professional stand mixer for baking",
-    locations: ["Main Store - Aisle 6", "Downtown Branch - Aisle 3"]
+    locations: ["Main Store - Aisle 6", "Downtown Branch - Aisle 3"],
+    onSale: true,
+    isNew: false
   },
   {
     id: 7,

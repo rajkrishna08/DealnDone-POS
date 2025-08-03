@@ -1,34 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
-import Header from './components/Header';
-import AICopilotPanel from './components/AICopilotPanel';
-import POSScreen from './components/POSScreen';
-import ProductsPage from './components/ProductsPage';
-import ProductCatalog from './components/ProductCatalog';
-import ProductCategories from './components/ProductCategories';
-import CustomerDirectory from './components/CustomerDirectory';
-import SalesOrders from './components/SalesOrders';
-import SalesHistory from './components/SalesHistory';
-import CashRegisters from './components/CashRegisters';
-import CashManagement from './components/CashManagement';
-import MarketingCampaigns from './components/MarketingCampaigns';
-import Settings from './components/Settings';
-import StoreAdminSegment from './components/StoreAdminSegment';
-import StoreDashboardReports from './components/StoreDashboardReports';
-import PricingPlansSettings from './components/PricingPlansSettings';
-import POSLandingPage from './components/POSLandingPage';
-import MobileInventoryScanner from './components/MobileInventoryScanner';
-import StoreManagerDashboard from './components/StoreManagerDashboard';
-import RegionalManagerDashboard from './components/RegionalManagerDashboard';
-import ExecutiveDashboard from './components/ExecutiveDashboard';
-import OutletsRegistersSettings from './components/OutletsRegistersSettings';
-import LoyaltySettings from './components/LoyaltySettings';
-import EmployeesSettings from './components/EmployeesSettings';
-import EmployeeRoles from './components/EmployeeRoles';
-import SalesTaxSettings from './components/SalesTaxSettings';
-import PaymentTypesSettings from './components/PaymentTypesSettings';
-import GeneralSetupSettings from './components/GeneralSetupSettings';
-// Import new inventory components
 import InventoryDashboard from './components/InventoryDashboard';
 import StockPurchases from './components/StockPurchases';
 import StockTransfers from './components/StockTransfers';
@@ -36,98 +7,114 @@ import StockReturns from './components/StockReturns';
 import StockTake from './components/StockTake';
 import Departments from './components/Departments';
 import Vendors from './components/Vendors';
-import LandingPage from './components/LandingPage';
+import MobileInventoryScanner from './components/MobileInventoryScanner';
+import StoreManagerDashboard from './components/StoreManagerDashboard';
+import RegionalManagerDashboard from './components/RegionalManagerDashboard';
+import OwnerDashboard from './components/OwnerDashboard';
+import POSScreen from './components/POSScreen';
+import ProductsPage from './components/ProductsPage';
 import DealBotAI from './components/DealBotAI';
-import { users } from './data/dummyData';
+import LandingPage from './components/LandingPage';
+import ProductCatalog from './components/ProductCatalog';
+import ProductCategories from './components/ProductCategories';
+import CustomerDirectory from './components/CustomerDirectory';
+import CustomerGroups from './components/CustomerGroups';
+import CustomerLoyalty from './components/CustomerLoyalty';
+import CustomerFeedback from './components/CustomerFeedback';
+import CustomerAnalytics from './components/CustomerAnalytics';
+import CustomerSupport from './components/CustomerSupport';
+import SalesOrders from './components/SalesOrders';
+import MarketingCampaigns from './components/MarketingCampaigns';
+import SalesHistory from './components/SalesHistory';
+import CashRegisters from './components/CashRegisters';
+import CashManagement from './components/CashManagement';
 import SignUp from './components/SignUp';
 import Login from './components/Login';
+import PricingPlansSettings from './components/PricingPlansSettings';
+import GeneralSetup from './components/GeneralSetup';
+import OutletsRegisters from './components/OutletsRegisters';
+import LoyaltyProgram from './components/LoyaltyProgram';
+import SalesTax from './components/SalesTax';
+import PaymentTypes from './components/PaymentTypes';
+import EmployeesSettings from './components/EmployeesSettings';
+import EmployeeRoles from './components/EmployeeRoles';
+import SalesQuotes from './components/SalesQuotes';
+import SecurityAccess from './components/SecurityAccess';
+import SalesInvoices from './components/SalesInvoices';
+import SalesReturns from './components/SalesReturns';
+import SalesAnalytics from './components/SalesAnalytics';
+import SalesTargets from './components/SalesTargets';
+import Settings from './components/Settings';
+import StoreDashboard from './components/StoreDashboard';
+import SubdomainRouter from './components/SubdomainRouter';
+import SubdomainTest from './components/SubdomainTest';
+import MCPDashboard from './components/MCPDashboard';
+import OrchestratorMonitor from './components/OrchestratorMonitor';
+import MobilePOS from './components/MobilePOS';
+import POSScreenV2 from './components/POSScreenV2';
+import ModernPOS from './components/ModernPOS';
 
-const App = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
-  const [selectedCurrency, setSelectedCurrency] = useState('USD');
-  const [settingsView, setSettingsView] = useState('main'); // 'main', 'pricing', 'outlets', 'loyalty', 'employees', 'sales-tax', 'payment-types', 'general-setup'
-  const [employeesView, setEmployeesView] = useState('employees'); // 'employees', 'roles', 'timesheets'
+function App() {
+  const [currentView, setCurrentView] = useState('landing');
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Mock user data - can be changed to test different roles
-  // Change the role here to test different dashboards: "Store Manager", "Regional Manager", "CEO"
-  const userRole = "Store Manager";
-  const user = users[userRole === "Store Manager" ? "storeManager" : userRole === "Regional Manager" ? "regionalManager" : "ceo"];
-
-  const handleNavigateToPricing = () => {
-    setSettingsView('pricing');
-  };
-
-  const handleNavigateToOutletsRegisters = () => {
-    setSettingsView('outlets');
-  };
-
-  const handleNavigateToLoyalty = () => {
-    setSettingsView('loyalty');
-  };
-
-  const handleNavigateToEmployees = () => {
-    setSettingsView('employees');
-  };
-
-  const handleNavigateToSalesTax = () => {
-    setSettingsView('sales-tax');
-  };
-
-  const handleNavigateToPaymentTypes = () => {
-    setSettingsView('payment-types');
-  };
-
-  const handleNavigateToGeneralSetup = () => {
-    setSettingsView('general-setup');
-  };
-
-  const handleNavigateToSettingsSubmodule = (submodule) => {
-    switch (submodule) {
-      case 'General Settings':
-        setSettingsView('main');
-        break;
-      case 'Pricing Plans':
-        setSettingsView('pricing');
-        break;
-      case 'Outlets & Registers':
-        setSettingsView('outlets');
-        break;
-      case 'Loyalty Program':
-        setSettingsView('loyalty');
-        break;
-      case 'Employees & Roles':
-        setSettingsView('employees');
-        break;
-      case 'Sales Tax':
-        setSettingsView('sales-tax');
-        break;
-      case 'Payment Types':
-        setSettingsView('payment-types');
-        break;
-      case 'General Setup':
-        setSettingsView('general-setup');
-        break;
-      default:
-        setSettingsView('main');
+  useEffect(() => {
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      const userData = JSON.parse(savedUser);
+      setUser(userData);
+      setIsAuthenticated(true);
+      
+      // Redirect based on user role
+      if (userData.role === 'superadmin') {
+        setCurrentView('owner-dashboard');
+      } else {
+        setCurrentView('store-dashboard');
+      }
     }
+    
+    // Check for store parameter in URL (original format)
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeParam = urlParams.get('store');
+    if (storeParam) {
+      // Redirect to subdomain format
+      window.location.href = `http://${storeParam}.localhost:3000`;
+    }
+  }, []);
+
+  const handleNavigate = (view) => {
+    setCurrentView(view);
   };
 
-  const handleNavigateToEmployeesSubmodule = (submodule) => {
-    setEmployeesView(submodule);
-  };
-
-  const handleBackToSettings = () => {
-    setSettingsView('main');
-  };
-
-  const handleBackToEmployees = () => {
-    setEmployeesView('employees');
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    setIsAuthenticated(false);
+    setCurrentView('landing');
   };
 
   const renderMainContent = () => {
     switch (currentView) {
-      case 'pos':
+      case 'landing':
+        return <LandingPage onNavigate={handleNavigate} />;
+      case 'login':
+        return <Login onNavigate={handleNavigate} />;
+      case 'signup':
+        return <SignUp onNavigate={handleNavigate} />;
+      case 'owner-dashboard':
+        return <OwnerDashboard />;
+      case 'store-manager-dashboard':
+        return <StoreManagerDashboard />;
+      case 'regional-manager-dashboard':
+        return <RegionalManagerDashboard />;
+      case 'pos-screen':
         return <POSScreen />;
+      case 'pos-v2':
+        return <POSScreenV2 />;
+      case 'modern-pos':
+        return <ModernPOS />;
       case 'products':
         return <ProductsPage />;
       case 'product-catalog':
@@ -136,17 +123,26 @@ const App = () => {
         return <ProductCategories />;
       case 'customer-directory':
         return <CustomerDirectory />;
+      case 'customer-groups':
+        return <CustomerGroups />;
+      case 'customer-loyalty':
+        return <CustomerLoyalty />;
+      case 'customer-feedback':
+        return <CustomerFeedback />;
+      case 'customer-analytics':
+        return <CustomerAnalytics />;
+      case 'customer-support':
+        return <CustomerSupport />;
       case 'sales-orders':
         return <SalesOrders />;
+      case 'marketing-campaigns':
+        return <MarketingCampaigns />;
       case 'sales-history':
         return <SalesHistory />;
       case 'cash-registers':
         return <CashRegisters />;
       case 'cash-management':
         return <CashManagement />;
-      case 'marketing-campaigns':
-        return <MarketingCampaigns />;
-      // Inventory submodules
       case 'inventory-dashboard':
         return <InventoryDashboard />;
       case 'stock-purchases':
@@ -161,104 +157,84 @@ const App = () => {
         return <Departments />;
       case 'vendors':
         return <Vendors />;
-      case 'landing':
-        return <LandingPage />;
-      case 'employees':
-        if (employeesView === 'roles') {
-          return <EmployeeRoles />;
-        }
-        return <EmployeesSettings 
-          onBackToEmployees={handleBackToEmployees}
-          onNavigateToEmployeesSubmodule={handleNavigateToEmployeesSubmodule}
-          employeesView={employeesView}
-          user={user} 
-        />;
-      case 'dashboard':
-        // Role-based dashboard routing
-        switch (user.role) {
-          case 'Store Manager':
-            return <StoreManagerDashboard />;
-          case 'Regional Manager':
-            return <RegionalManagerDashboard />;
-          case 'CEO':
-            return <ExecutiveDashboard />;
-          default:
-            return <StoreManagerDashboard />;
-        }
-      case 'settings':
-        if (settingsView === 'pricing') {
-          return <PricingPlansSettings onBackToSettings={handleBackToSettings} />;
-        }
-        if (settingsView === 'outlets') {
-          return <OutletsRegistersSettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        if (settingsView === 'loyalty') {
-          return <LoyaltySettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        if (settingsView === 'employees') {
-          return <EmployeesSettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        if (settingsView === 'sales-tax') {
-          return <SalesTaxSettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        if (settingsView === 'payment-types') {
-          return <PaymentTypesSettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        if (settingsView === 'general-setup') {
-          return <GeneralSetupSettings onBackToSettings={handleBackToSettings} user={user} />;
-        }
-        return <Settings
-          onNavigateToPricing={handleNavigateToPricing}
-          onNavigateToOutletsRegisters={handleNavigateToOutletsRegisters}
-          onNavigateToLoyalty={handleNavigateToLoyalty}
-          onNavigateToEmployees={handleNavigateToEmployees}
-          onNavigateToSalesTax={handleNavigateToSalesTax}
-          onNavigateToPaymentTypes={handleNavigateToPaymentTypes}
-          onNavigateToGeneralSetup={handleNavigateToGeneralSetup}
-        />;
-      case 'segments':
-        return <StoreAdminSegment />;
-      case 'scanner':
+      case 'mobile-scanner':
         return <MobileInventoryScanner />;
-      case 'signup':
-        return <SignUp />;
-      case 'login':
-        return <Login />;
+      case 'dealbot-ai':
+        return <DealBotAI />;
+      case 'pricing-plans-settings':
+        return <PricingPlansSettings />;
+      case 'general-setup':
+        return <GeneralSetup />;
+      case 'outlets-registers':
+        return <OutletsRegisters />;
+      case 'loyalty-program':
+        return <LoyaltyProgram />;
+      case 'sales-tax':
+        return <SalesTax />;
+      case 'payment-types':
+        return <PaymentTypes />;
+      case 'employees':
+        return <EmployeesSettings onBackToSettings={() => handleNavigate('settings')} />;
+      case 'employee-roles':
+        return <EmployeeRoles />;
+      case 'timesheets':
+        return <EmployeesSettings onBackToSettings={() => handleNavigate('settings')} employeesView="timesheets" />;
+      case 'roles':
+        return <EmployeeRoles />;
+      case 'sales-quotes':
+        return <SalesQuotes />;
+      case 'sales-invoices':
+        return <SalesInvoices />;
+      case 'sales-returns':
+        return <SalesReturns />;
+      case 'sales-analytics':
+        return <SalesAnalytics />;
+      case 'sales-targets':
+        return <SalesTargets />;
+      case 'settings':
+        return <Settings onNavigate={handleNavigate} />;
+      case 'store-dashboard':
+        return <StoreDashboard onNavigate={handleNavigate} />;
+      case 'mcp-dashboard':
+        return <MCPDashboard />;
+      case 'orchestrator-monitor':
+        return <OrchestratorMonitor />;
+      case 'subdomain-test':
+        return <SubdomainTest />;
+      case 'security-access':
+        return <SecurityAccess />;
+      case 'mobile-pos':
+        return <MobilePOS />;
       default:
-        // Default to role-based dashboard
-        switch (user.role) {
-          case 'Store Manager':
-            return <StoreManagerDashboard />;
-          case 'Regional Manager':
-            return <RegionalManagerDashboard />;
-          case 'CEO':
-            return <ExecutiveDashboard />;
-          default:
-            return <StoreManagerDashboard />;
-        }
+        return <LandingPage onNavigate={handleNavigate} />;
     }
   };
 
+  // If user is not authenticated and not on landing/login/signup, show landing
+  if (!isAuthenticated && !['landing', 'login', 'signup'].includes(currentView)) {
+    return <LandingPage onNavigate={handleNavigate} />;
+  }
+
+  // If on landing/login/signup/store-dashboard pages, don't show sidebar
+  if (['landing', 'login', 'signup', 'store-dashboard'].includes(currentView)) {
+    return renderMainContent();
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex">
+    <SubdomainRouter>
+      <div className="flex h-screen bg-gray-100">
         <Sidebar 
           currentView={currentView} 
-          setCurrentView={setCurrentView} 
-          onNavigateToEmployeesSubmodule={handleNavigateToEmployeesSubmodule}
-          onNavigateToSettingsSubmodule={handleNavigateToSettingsSubmodule}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+          user={user}
         />
-        <div className="flex-1 flex flex-col">
-          <Header user={user} selectedCurrency={selectedCurrency} setSelectedCurrency={setSelectedCurrency} />
-          <main className="flex-1 p-6">
-            {renderMainContent()}
-          </main>
-        </div>
-        <AICopilotPanel />
-        <DealBotAI />
+        <main className="flex-1 overflow-auto">
+          {renderMainContent()}
+        </main>
       </div>
-    </div>
+    </SubdomainRouter>
   );
-};
+}
 
 export default App; 

@@ -1,14 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const PricingPlansSettings = ({ onBackToSettings }) => {
   const [currentPlan, setCurrentPlan] = useState('basic');
   const [currentBillingCycle, setCurrentBillingCycle] = useState('monthly');
   const [showChangePlan, setShowChangePlan] = useState(false);
   const [selectedNewPlan, setSelectedNewPlan] = useState('');
-  const [selectedBillingCycle, setSelectedBillingCycle] = useState('monthly');
   const [isLoading, setIsLoading] = useState(false);
-  const [showAddRegister, setShowAddRegister] = useState(false);
-  const [showAddOutlet, setShowAddOutlet] = useState(false);
+  const [isLoadingPlan, setIsLoadingPlan] = useState(true);
+  const [planDetails, setPlanDetails] = useState(null);
+
+  // Simulate backend API call
+  const fetchPlanFromBackend = useCallback(async (planType, billingCycle) => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock response based on plan type
+    const planData = {
+      planType: planType,
+      billingCycle: billingCycle,
+      nextBillingDate: getNextBillingDate(),
+      usage: {
+        registers: 1,
+        outlets: 1,
+        products: 150,
+        customers: 45
+      },
+      limits: getPlanLimits(planType),
+      status: 'active'
+    };
+    
+    return planData;
+  }, []);
+
+  const getPlanLimits = (planType) => {
+    const limits = {
+      basic: {
+        registers: 1,
+        outlets: 1,
+        products: 1000,
+        customers: 500
+      },
+      professional: {
+        registers: 3,
+        outlets: 2,
+        products: 10000,
+        customers: 2000
+      },
+      enterprise: {
+        registers: 10,
+        outlets: 5,
+        products: -1, // unlimited
+        customers: -1 // unlimited
+      },
+      custom: {
+        registers: -1, // unlimited
+        outlets: -1, // unlimited
+        products: -1, // unlimited
+        customers: -1 // unlimited
+      }
+    };
+    
+    return limits[planType] || limits.basic;
+  };
+
+  const fetchCurrentPlan = useCallback(async () => {
+    setIsLoadingPlan(true);
+    try {
+      // First try to get from localStorage
+      const storeData = localStorage.getItem('storeData');
+      const userData = localStorage.getItem('user');
+      
+      let planType = 'basic'; // default
+      let billingCycle = 'monthly'; // default
+      
+      if (storeData) {
+        const parsedStoreData = JSON.parse(storeData);
+        planType = parsedStoreData.planType || 'basic';
+      }
+      
+      if (userData) {
+        const parsedUserData = JSON.parse(userData);
+        billingCycle = parsedUserData.billingCycle || 'monthly';
+      }
+
+      // In a real app, this would be an API call to /settings/plan
+      // For now, we'll simulate the API call
+      const mockApiResponse = await fetchPlanFromBackend(planType, billingCycle);
+      
+      setCurrentPlan(mockApiResponse.planType);
+      setCurrentBillingCycle(mockApiResponse.billingCycle);
+      setPlanDetails(mockApiResponse);
+      
+    } catch (error) {
+      console.error('Error fetching plan:', error);
+      // Fallback to localStorage data
+      const storeData = localStorage.getItem('storeData');
+      if (storeData) {
+        const parsedStoreData = JSON.parse(storeData);
+        setCurrentPlan(parsedStoreData.planType || 'basic');
+      }
+    } finally {
+      setIsLoadingPlan(false);
+    }
+  }, [fetchPlanFromBackend]);
+
+  // Fetch current plan from localStorage and backend
+  useEffect(() => {
+    fetchCurrentPlan();
+  }, [fetchCurrentPlan]);
 
   const pricingPlans = [
     {
@@ -153,81 +252,91 @@ const PricingPlansSettings = ({ onBackToSettings }) => {
 
       {/* Main Content */}
       <div className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Current Plan */}
-          <div className="lg:col-span-1">
-            <div className="deal-n-done-card">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Plan</h2>
-              
-              {currentPlanData && (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Allocated Amount</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {typeof currentPlanData?.price === 'number' ? `$${currentPlanData.price}` : currentPlanData?.price}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Current Balance</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {typeof currentPlanData?.price === 'number' ? `$${currentPlanData.price}` : currentPlanData?.price}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Available for Use</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {typeof currentPlanData?.price === 'number' ? `$${currentPlanData.price - 50}` : 'Contact Us'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Billing Cycle</span>
-                      <span className="text-lg font-bold text-gray-900 capitalize">{currentBillingCycle}</span>
-                    </div>
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Registers</span>
-                      <span className="text-lg font-bold text-gray-900">{currentPlanData?.registers}</span>
-                    </div>
-                  </div>
-                  <div className="bg-indigo-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-600">Outlets</span>
-                      <span className="text-lg font-bold text-gray-900">{currentPlanData?.outlets}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Plan Features:</h4>
-                    <ul className="space-y-2">
-                      {currentPlanData.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm text-gray-700">
-                          <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <button
-                    onClick={() => setShowChangePlan(true)}
-                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
-                  >
-                    Change Plan
-                  </button>
-                </div>
-              )}
+        {isLoadingPlan ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your plan details...</p>
             </div>
           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Current Plan */}
+            <div className="lg:col-span-1">
+              <div className="deal-n-done-card">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Plan</h2>
+                
+                {currentPlanData && planDetails && (
+                  <div className="space-y-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Plan Name</span>
+                        <span className="text-lg font-bold text-gray-900">{currentPlanData.name}</span>
+                      </div>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Monthly Price</span>
+                        <span className="text-lg font-bold text-gray-900">
+                          {typeof currentPlanData?.price === 'number' ? `$${currentPlanData.price}` : currentPlanData?.price}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Billing Cycle</span>
+                        <span className="text-lg font-bold text-gray-900 capitalize">{currentBillingCycle}</span>
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Next Billing Date</span>
+                        <span className="text-lg font-bold text-gray-900">{planDetails.nextBillingDate}</span>
+                      </div>
+                    </div>
+                    <div className="bg-indigo-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-600">Status</span>
+                        <span className="text-lg font-bold text-green-600 capitalize">{planDetails.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Plan Limits */}
+              <div className="deal-n-done-card mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Plan Limits</h3>
+                {planDetails && (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">Registers</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        {planDetails.usage.registers} / {planDetails.limits.registers === -1 ? '∞' : planDetails.limits.registers}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">Outlets</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        {planDetails.usage.outlets} / {planDetails.limits.outlets === -1 ? '∞' : planDetails.limits.outlets}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">Products</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        {planDetails.usage.products} / {planDetails.limits.products === -1 ? '∞' : planDetails.limits.products}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-600">Customers</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        {planDetails.usage.customers} / {planDetails.limits.customers === -1 ? '∞' : planDetails.limits.customers}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
           {/* Available Plans */}
           <div className="lg:col-span-2">
@@ -299,6 +408,7 @@ const PricingPlansSettings = ({ onBackToSettings }) => {
             </div>
           </div>
         </div>
+        )}
 
         {/* Billing Cycle Management */}
         <div className="mt-6">
@@ -332,7 +442,7 @@ const PricingPlansSettings = ({ onBackToSettings }) => {
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-200 bg-white hover:border-gray-300'
                       }`}
-                      onClick={() => setSelectedBillingCycle(option.id)}
+                      onClick={() => setCurrentBillingCycle(option.id)}
                     >
                       <div className="flex justify-between items-center">
                         <div>
@@ -372,7 +482,7 @@ const PricingPlansSettings = ({ onBackToSettings }) => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Registers</h3>
                   <button
-                    onClick={() => setShowAddRegister(true)}
+                    onClick={() => alert('Add Register functionality not implemented yet')}
                     className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
                   >
                     Add Register
@@ -395,7 +505,7 @@ const PricingPlansSettings = ({ onBackToSettings }) => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Outlets</h3>
                   <button
-                    onClick={() => setShowAddOutlet(true)}
+                    onClick={() => alert('Add Outlet functionality not implemented yet')}
                     className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-700"
                   >
                     Add Outlet

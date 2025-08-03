@@ -103,7 +103,14 @@
         <form id="saleForm">
             <div class="form-group">
                 <label for="productId">Product ID:</label>
-                <input type="text" id="productId" value="shirt_001" required>
+                <select id="productId" required>
+                    <option value="">Select a product...</option>
+                    <option value="shirt_001">Dress Shirt - $25.00</option>
+                    <option value="shirt_002">Casual Shirt - $20.00</option>
+                    <option value="shirt_003">Polo Shirt - $22.50</option>
+                    <option value="pants_001">Dress Pants - $35.00</option>
+                    <option value="jacket_001">Blazer - $75.00</option>
+                </select>
             </div>
             
             <div class="form-group">
@@ -111,7 +118,7 @@
                 <input type="number" id="quantity" value="1" min="1" required>
             </div>
             
-            <button type="submit">Sell Shirt ($25 each)</button>
+            <button type="submit">Process Sale</button>
         </form>
         
         <div id="result" class="result"></div>
@@ -162,15 +169,18 @@
                 if (result.status === 'success') {
                     resultDiv.innerHTML = `
                         <strong>✅ Sale Successful!</strong><br>
-                        Total: $${result.total}<br>
+                        <strong>Total: $${result.total.toFixed(2)}</strong><br>
                         Items Processed: ${result.items_processed}<br>
-                        Message: ${result.message}
+                        ${result.message}
                     `;
                     resultDiv.className = 'result success';
+                    
+                    // Reset form after successful sale
+                    document.getElementById('quantity').value = '1';
                 } else {
                     resultDiv.innerHTML = `
                         <strong>❌ Error:</strong><br>
-                        ${result.message}
+                        ${result.detail || result.message || 'Unknown error occurred'}
                     `;
                     resultDiv.className = 'result error';
                 }

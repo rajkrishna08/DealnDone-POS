@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 const CashRegisters = () => {
   const [activeTab, setActiveTab] = useState('registers');
-  const [showAddRegister, setShowAddRegister] = useState(false);
   const [selectedRegister, setSelectedRegister] = useState(null);
 
   // Dummy data for cash registers
@@ -145,7 +144,7 @@ const CashRegisters = () => {
         </div>
         <div className="deal-n-done-header actions">
           <button 
-            onClick={() => setShowAddRegister(true)}
+            onClick={() => setSelectedRegister(null)}
             className="deal-n-done-btn-primary"
           >
             <span>➕</span>

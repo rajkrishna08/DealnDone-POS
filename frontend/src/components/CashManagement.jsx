@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 
 const CashManagement = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [showAddTransaction, setShowAddTransaction] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   // Dummy data for cash management
   const cashOverview = {
@@ -153,7 +151,6 @@ const CashManagement = () => {
         </div>
         <div className="deal-n-done-header actions">
           <button 
-            onClick={() => setShowAddTransaction(true)}
             className="deal-n-done-btn-primary"
           >
             <span>💰</span>

@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { products as dummyProducts, paymentMethods } from '../data/dummyData';
+import { 
+  Search, 
+  Plus, 
+  Minus, 
+  Trash2, 
+  ShoppingCart, 
+  CreditCard, 
+  CheckCircle, 
+  XCircle, 
+  Package
+} from 'lucide-react';
 
 const POSScreen = ({ selectedCurrency = 'USD' }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -24,7 +35,7 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
 
   const checkApiStatus = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/health');
+              const response = await axios.get('http://localhost:8005/health');
       if (response.data.status === 'healthy') {
         setApiStatus('online');
       } else {
@@ -186,7 +197,7 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-64 border border-gray-300 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               </div>
             </div>
 
@@ -256,7 +267,7 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                         disabled={quantity <= 1}
                         className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <span className="text-sm">-</span>
+                        <Minus className="w-4 h-4" />
                       </button>
                       <input
                         type="number"
@@ -271,7 +282,7 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                         disabled={quantity >= selectedProduct.stock}
                         className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
-                        <span className="text-sm">+</span>
+                        <Plus className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -297,14 +308,14 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                     onClick={addToCart}
                     className="deal-n-done-btn-primary w-full py-3 text-lg font-semibold"
                   >
-                    <span className="text-lg mr-2">🛒</span>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
                     Add to Cart
                   </button>
                 </div>
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500 mb-6">
-                <span className="text-4xl mb-2">📦</span>
+                <Package className="w-12 h-12 mx-auto mb-2 text-gray-400" />
                 <p>Select a product to add to cart</p>
               </div>
             )}
@@ -330,20 +341,20 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
                           className="p-1 text-gray-600 hover:text-gray-900"
                         >
-                          <span className="text-sm">-</span>
+                          <Minus className="w-3 h-3" />
                         </button>
                         <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
                           className="p-1 text-gray-600 hover:text-gray-900"
                         >
-                          <span className="text-sm">+</span>
+                          <Plus className="w-3 h-3" />
                         </button>
                         <button
                           onClick={() => removeFromCart(item.id)}
                           className="p-1 text-red-600 hover:text-red-800"
                         >
-                          <span className="text-sm">🗑️</span>
+                          <Trash2 className="w-3 h-3" />
                         </button>
                       </div>
                       <div className="text-right">
@@ -469,7 +480,7 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                     : 'bg-gray-100 text-gray-500 cursor-not-allowed'
                 }`}
               >
-                <span className="text-lg mr-2">💳</span>
+                <CreditCard className="w-5 h-5 mr-2" />
                 Complete Sale
               </button>
             )}
@@ -482,11 +493,11 @@ const POSScreen = ({ selectedCurrency = 'USD' }) => {
                   : 'bg-red-50 border border-red-200'
               }`}>
                 <div className="flex items-center">
-                  <span className={`text-lg mr-2 ${
-                    saleResult.type === 'success' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {saleResult.type === 'success' ? '✅' : '❌'}
-                  </span>
+                  {saleResult.type === 'success' ? (
+                    <CheckCircle className="w-5 h-5 mr-2 text-green-600" />
+                  ) : (
+                    <XCircle className="w-5 h-5 mr-2 text-red-600" />
+                  )}
                   <span className={`text-sm font-medium ${
                     saleResult.type === 'success' ? 'text-green-800' : 'text-red-800'
                   }`}>

@@ -95,7 +95,76 @@ dealndone2025/
 │   └── dealndone.db        # SQLite database
 ├── frontend/
 │   └── index.html          # Web interface
-└── README.md               # This file
+└── # DealNDone POS System
+
+A simple, modern Point of Sale (POS) system for men's garments retail, built with FastAPI backend and vanilla HTML/CSS/JavaScript frontend.
+
+## 🚀 Quick Start
+
+### Option 1: Automatic Setup (Recommended)
+```bash
+cd backend
+python start_simple.py
+```
+
+### Option 2: Manual Setup
+```bash
+# Install dependencies
+cd backend
+pip install fastapi uvicorn pydantic
+
+# Start the server
+python simple_main.py
+```
+
+### Option 3: Windows PowerShell
+```powershell
+cd backend
+.\start_simple.ps1
+```
+
+## 📱 Access the Application
+
+- **Frontend**: Open `frontend/index.html` in your browser
+- **API**: http://localhost:8000
+- **Health Check**: http://localhost:8000/health
+- **Products**: http://localhost:8000/products
+
+## ✨ Features
+
+### ✅ Working Features
+- **Health Check**: API status monitoring
+- **Product Management**: Pre-loaded with 5 sample products
+- **Sales Processing**: Complete sale workflow with stock updates
+- **Stock Management**: Automatic stock deduction
+- **Sales History**: Track all processed sales
+- **Error Handling**: Comprehensive error messages
+- **CORS Support**: Frontend-backend communication
+- **Real-time Status**: Live API connection status
+
+### 📦 Sample Products
+- `shirt_001` - Dress Shirt ($25.00)
+- `shirt_002` - Casual Shirt ($20.00) 
+- `shirt_003` - Polo Shirt ($22.50)
+- `pants_001` - Dress Pants ($35.00)
+- `jacket_001` - Blazer ($75.00)
+
+## 🛠️ Technical Stack
+
+- **Backend**: FastAPI (Python)
+- **Database**: SQLite
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **API**: RESTful with JSON responses
+
+## 🧪 Testing
+
+Run the test suite:
+```bash
+cd backend
+python test_simple.py
+```
+
+**Happy Selling! 🛍️**               # This file
 ```
 
 ## Development

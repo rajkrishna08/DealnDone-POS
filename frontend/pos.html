@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealNDone POS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-name {
+            font-weight: 600;
+        }
+        
+        .user-plan {
+            font-size: 12px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        .user-subdomain {
+            font-size: 11px;
+            opacity: 0.7;
+            color: #b8c5f0;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 30px auto;
+            gap: 30px;
+            padding: 0 20px;
+        }
+        
+        .pos-section {
+            flex: 2;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+        
+        .status-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .plan-info {
+            text-align: center;
+        }
+        
+        .plan-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            text-align: left;
+            margin-top: 15px;
+        }
+        
+        .plan-features li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            color: #4CAF50;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .upgrade-btn {
+            background: #28a745;
+            margin-top: 15px;
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                margin: 20px auto;
+                padding: 0 15px;
+            }
+            
+            .navbar {
+                padding: 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .navbar-user {
+                order: -1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-brand">DealNDone POS</div>
+        <div class="navbar-user">
+            <div class="user-info">
+                <div class="user-name" id="user-name">Loading...</div>
+                <div class="user-plan" id="user-plan">Plan</div>
+                <div class="user-subdomain" id="user-subdomain">subdomain.dealndone.com</div>
+            </div>
+            <div class="navbar-menu">
+                <button class="nav-btn" onclick="showSubscription()">Subscription</button>
+                <button class="nav-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="pos-section">
+            <h2 class="section-title">Point of Sale</h2>
+            
+            <form id="sale-form">
+                <div class="form-group">
+                    <label for="product-id">Product:</label>
+                    <select id="product-id" required>
+                        <option value="">Loading products...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" value="1" min="1" required>
+                </div>
+                
+                <button type="submit" class="btn" id="sale-btn">Process Sale</button>
+            </form>
+            
+            <div id="sale-result" class="result"></div>
+        </div>
+        
+        <div class="status-section">
+            <div class="status-card">
+                <h3>System Status</h3>
+                <div id="api-status" class="status">Checking...</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="products-count">-</div>
+                        <div class="stat-label">Products</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="sales-today">-</div>
+                        <div class="stat-label">Sales Today</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <h3>Current Plan</h3>
+                <div class="plan-info">
+                    <div class="plan-name" id="current-plan-name">Loading...</div>
+                    <div class="plan-price" id="current-plan-price">$0.00/month</div>
+                    <ul class="plan-features" id="current-plan-features">
+                        <li>Loading features...</li>
+                    </ul>
+                    <button class="btn upgrade-btn" onclick="showSubscription()">Manage Subscription</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Modal -->
+    <div id="subscription-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <h2 style="margin-bottom: 20px;">Subscription Management</h2>
+            
+            <div id="subscription-content">
+                <p>Loading subscription details...</p>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="nav-btn" onclick="hideSubscription()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8002';
+        let authToken = localStorage.getItem('auth_token');
+        let userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
+        
+        // Check authentication
+        if (!authToken) {
+            window.location.href = 'auth.html';
+        }
+        
+        // API request with auth
+        async function apiRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            };
+            
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: { ...defaultOptions.headers, ...options.headers }
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}${url}`, mergedOptions);
+                
+                if (response.status === 401) {
+                    // Token expired, redirect to login
+                    logout();
+                    return null;
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        }
+        
+        // Initialize page
+        async function init() {
+            await loadUserInfo();
+            await checkApiStatus();
+            await loadProducts();
+            await loadSubscription();
+            await loadStats();
+        }
+        
+        // Load user information
+        async function loadUserInfo() {
+            try {
+                const response = await apiRequest('/auth/me');
+                if (response && response.ok) {
+                    const userData = await response.json();
+                    document.getElementById('user-name').textContent = userData.business_name;
+                    document.getElementById('user-plan').textContent = userData.plan_type.toUpperCase() + ' PLAN';
+                    document.getElementById('user-subdomain').textContent = `${userData.subdomain}.dealndone.com`;
+                    userInfo = userData;
+                    localStorage.setItem('user_info', JSON.stringify(userData));
+                }
+            } catch (error) {
+                console.error('Failed to load user info:', error);
+            }
+        }
+        
+        // Check API status
+        async function checkApiStatus() {
+            try {
+                const response = await apiRequest('/health');
+                if (response && response.ok) {
+                    document.getElementById('api-status').innerHTML = '✅ API Online';
+                    document.getElementById('api-status').className = 'status online';
+                } else {
+                    throw new Error('API offline');
+                }
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = '❌ API Offline';
+                document.getElementById('api-status').className = 'status offline';
+            }
+        }
+        
+        // Load products
+        async function loadProducts() {
+            try {
+                const response = await apiRequest('/products');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    const productSelect = document.getElementById('product-id');
+                    productSelect.innerHTML = '<option value="">Select a product...</option>';
+                    
+                    data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.stock})`;
+                        productSelect.appendChild(option);
+                    });
+                    
+                    document.getElementById('products-count').textContent = data.products.length;
+                }
+            } catch (error) {
+                console.error('Failed to load products:', error);
+                document.getElementById('product-id').innerHTML = '<option value="">Error loading products</option>';
+            }
+        }
+        
+        // Load subscription info
+        async function loadSubscription() {
+            try {
+                const response = await apiRequest('/subscription');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    const planDetails = data.plan_details;
+                    
+                    document.getElementById('current-plan-name').textContent = planDetails.name;
+                    document.getElementById('current-plan-price').textContent = `$${planDetails.price}/month`;
+                    
+                    const featuresList = document.getElementById('current-plan-features');
+                    featuresList.innerHTML = '';
+                    planDetails.features.forEach(feature => {
+                        const li = document.createElement('li');
+                        li.textContent = feature;
+                        featuresList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load subscription:', error);
+            }
+        }
+        
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await apiRequest('/sales/history');
+                if (response && response.ok) {
+                    const data = await response.json();
+                    const today = new Date().toDateString();
+                    const todaySales = data.sales.filter(sale => 
+                        new Date(sale.timestamp).toDateString() === today
+                    );
+                    document.getElementById('sales-today').textContent = todaySales.length;
+                }
+            } catch (error) {
+                document.getElementById('sales-today').textContent = '0';
+            }
+        }
+        
+        // Handle sale form
+        document.getElementById('sale-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const productId = document.getElementById('product-id').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const saleBtn = document.getElementById('sale-btn');
+            const resultDiv = document.getElementById('sale-result');
+            
+            if (!productId) {
+                showResult('Please select a product', 'error');
+                return;
+            }
+            
+            saleBtn.disabled = true;
+            saleBtn.textContent = 'Processing...';
+            
+            try {
+                const response = await apiRequest('/sales', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        items: [{ id: productId, quantity: quantity }]
+                    })
+                });
+                
+                if (response && response.ok) {
+                    const result = await response.json();
+                    showResult(`✅ Sale Successful! Total: $${result.total.toFixed(2)} - ${result.message}`, 'success');
+                    
+                    // Refresh data
+                    await loadProducts();
+                    await loadStats();
+                    
+                    // Reset form
+                    document.getElementById('quantity').value = '1';
+                    document.getElementById('product-id').value = '';
+                } else {
+                    const error = await response.json();
+                    showResult(`❌ ${error.detail}`, 'error');
+                }
+            } catch (error) {
+                showResult('❌ Connection error. Please try again.', 'error');
+            } finally {
+                saleBtn.disabled = false;
+                saleBtn.textContent = 'Process Sale';
+            }
+        });
+        
+        // Show result message
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('sale-result');
+            resultDiv.innerHTML = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Subscription modal
+        async function showSubscription() {
+            try {
+                const [plansResponse, subscriptionResponse] = await Promise.all([
+                    apiRequest('/plans'),
+                    apiRequest('/subscription')
+                ]);
+                
+                if (plansResponse && plansResponse.ok && subscriptionResponse && subscriptionResponse.ok) {
+                    const plans = await plansResponse.json();
+                    const subscription = await subscriptionResponse.json();
+                    
+                    let modalContent = `
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 10px 0;">${subscription.plan_details.name}</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <div style="font-size: 24px; font-weight: bold;">$${subscription.plan_details.price}/month</div>
+                                    <div style="opacity: 0.9;">${subscription.user_info.business_name}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 14px; opacity: 0.9;">Your Store URL:</div>
+                                    <div style="font-weight: 600;">${subscription.user_info.subdomain}.dealndone.com</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4>Plan Usage & Limits</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 18px; font-weight: bold; color: #667eea;">${subscription.usage?.products || 0}</div>
+                                    <div style="font-size: 12px; color: #666;">Products Used</div>
+                                    <div style="font-size: 11px; color: #999;">
+                                        Limit: ${subscription.plan_details.limits.products === -1 ? 'Unlimited' : subscription.plan_details.limits.products}
+                                    </div>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 18px; font-weight: bold; color: #667eea;">${subscription.usage?.users || 1}</div>
+                                    <div style="font-size: 12px; color: #666;">Active Users</div>
+                                    <div style="font-size: 11px; color: #999;">
+                                        Limit: ${subscription.plan_details.limits.users === -1 ? 'Unlimited' : subscription.plan_details.limits.users}
+                                    </div>
+                                </div>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; text-align: center;">
+                                    <div style="font-size: 18px; font-weight: bold; color: #667eea;">${subscription.usage?.monthly_sales || 0}</div>
+                                    <div style="font-size: 12px; color: #666;">This Month's Sales</div>
+                                    <div style="font-size: 11px; color: #999;">
+                                        Limit: ${subscription.plan_details.limits.monthly_sales === -1 ? 'Unlimited' : subscription.plan_details.limits.monthly_sales}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4>Available Plans:</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px;">
+                    `;
+                    
+                    Object.entries(plans).forEach(([planKey, planData]) => {
+                        const isCurrentPlan = planKey === subscription.current_plan;
+                        const isUpgrade = planData.price > subscription.plan_details.price;
+                        const isCustom = planKey === 'custom';
+                        
+                        modalContent += `
+                            <div style="border: 2px solid ${isCurrentPlan ? '#667eea' : '#e1e5e9'}; border-radius: 12px; padding: 18px; text-align: center; ${isCurrentPlan ? 'background: linear-gradient(145deg, #f8f9ff, #e8f0ff);' : 'background: white;'} transition: all 0.3s; position: relative;">
+                                ${isCurrentPlan ? '<div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #667eea; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">CURRENT</div>' : ''}
+                                <h4 style="margin: 0 0 8px 0; color: ${isCurrentPlan ? '#667eea' : '#333'};">${planData.name}</h4>
+                                <div style="font-size: 24px; font-weight: bold; color: #667eea; margin: 12px 0;">
+                                    ${isCustom ? 'Contact Sales' : `$${planData.price}/month`}
+                                </div>
+                                <ul style="list-style: none; padding: 0; font-size: 13px; color: #666; text-align: left; margin: 15px 0;">
+                                    ${planData.features.slice(0, 4).map(feature => `<li style="margin-bottom: 8px; padding-left: 16px; position: relative;"><span style="position: absolute; left: 0; color: #28a745; font-weight: bold;">✓</span> ${feature}</li>`).join('')}
+                                    ${planData.features.length > 4 ? `<li style="margin-bottom: 8px; color: #999; font-style: italic;">+${planData.features.length - 4} more features</li>` : ''}
+                                </ul>
+                                ${!isCurrentPlan ? `
+                                    <button onclick="${isCustom ? 'contactSales()' : `upgradePlan('${planKey}')`}" style="background: ${isUpgrade ? '#28a745' : '#667eea'}; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; margin-top: 12px; font-weight: 600; width: 100%; transition: background 0.3s;">
+                                        ${isCustom ? 'Contact Sales' : (isUpgrade ? `Upgrade to ${planData.name}` : `Switch to ${planData.name}`)}
+                                    </button>
+                                ` : '<div style="color: #667eea; font-weight: bold; margin-top: 12px; padding: 10px; background: rgba(102,126,234,0.1); border-radius: 6px;">Your Current Plan</div>'}
+                            </div>
+                        `;
+                    });
+                    
+                    modalContent += `
+                        </div>
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+                            <p style="font-size: 13px; color: #666; margin: 0;">
+                                Need help choosing? <a href="mailto:support@dealndone.com" style="color: #667eea;">Contact our sales team</a>
+                            </p>
+                        </div>
+                    `;
+                    document.getElementById('subscription-content').innerHTML = modalContent;
+                }
+            } catch (error) {
+                document.getElementById('subscription-content').innerHTML = '<p>Error loading subscription details.</p>';
+            }
+            
+            document.getElementById('subscription-modal').style.display = 'block';
+        }
+        
+        function hideSubscription() {
+            document.getElementById('subscription-modal').style.display = 'none';
+        }
+        
+        function contactSales() {
+            alert('Contact our sales team:\n\nEmail: sales@dealndone.com\nPhone: (555) 123-4567\n\nWe\'ll help you create a custom plan that fits your business needs perfectly!');
+        }
+        
+        // Upgrade plan
+        async function upgradePlan(planType) {
+            try {
+                const response = await apiRequest('/subscription/upgrade', {
+                    method: 'PUT',
+                    body: JSON.stringify({"new_plan": planType})
+                });
+                
+                if (response && response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                    hideSubscription();
+                    await loadUserInfo();
+                    await loadSubscription();
+                } else {
+                    const error = await response.json();
+                    alert(`Error: ${error.detail}`);
+                }
+            } catch (error) {
+                alert('Failed to upgrade plan. Please try again.');
+            }
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_info');
+            window.location.href = 'auth.html';
+        }
+        
+        // Initialize page
+        init();
+        
+        // Refresh data every 30 seconds
+        setInterval(() => {
+            checkApiStatus();
+            loadStats();
+        }, 30000);
+    </script>
+</body>
+</html>

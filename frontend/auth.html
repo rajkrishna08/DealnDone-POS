@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealNDone - Get Started</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            min-height: 600px;
+        }
+        
+        .auth-sidebar {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .auth-main {
+            flex: 1.5;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-text {
+            font-size: 18px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .plan-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .plan-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .plan-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .plan-card.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .plan-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .plan-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .plan-period {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .plan-features li:before {
+            content: "✓";
+            color: #4CAF50;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .link:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+                margin: 10px;
+            }
+            
+            .auth-sidebar {
+                padding: 20px;
+                text-align: center;
+            }
+            
+            .auth-main {
+                padding: 20px;
+            }
+            
+            .plan-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-sidebar">
+            <div class="logo">DealNDone</div>
+            <div class="sidebar-text">
+                Start your journey with the most powerful POS system for your business. 
+                Manage inventory, process sales, and grow your business with ease.
+            </div>
+        </div>
+        
+        <div class="auth-main">
+            <div class="auth-tabs">
+                <button class="tab-button active" onclick="switchTab('login')">Sign In</button>
+                <button class="tab-button" onclick="switchTab('signup')">Get Started</button>
+            </div>
+            
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+            
+            <!-- Login Tab -->
+            <div id="login-tab" class="tab-content active">
+                <h2 style="margin-bottom: 30px;">Welcome Back</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email Address</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="login-btn">Sign In</button>
+                </form>
+            </div>
+            
+            <!-- Signup Tab -->
+            <div id="signup-tab" class="tab-content">
+                <h2 style="margin-bottom: 30px;">Create Your Account</h2>
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label for="business-name">Business Name</label>
+                        <input type="text" id="business-name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subdomain">Your Subdomain</label>
+                        <div style="display: flex; align-items: center; border: 2px solid #ddd; border-radius: 8px; overflow: hidden;">
+                            <input type="text" id="subdomain" placeholder="your-business" required style="flex: 1; border: none; padding: 12px;">
+                            <span style="background: #f8f9fa; padding: 12px; color: #666;">.dealndone.com</span>
+                        </div>
+                        <div id="subdomain-status" style="margin-top: 5px; font-size: 14px;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number (Optional)</label>
+                        <input type="tel" id="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Choose Your Plan</label>
+                        <div class="plan-selector">
+                            <div class="plan-card" data-plan="basic">
+                                <div class="plan-name">Basic</div>
+                                <div class="plan-price">$29</div>
+                                <div class="plan-period">per month</div>
+                                <ul class="plan-features">
+                                    <li>500 products</li>
+                                    <li>Basic sales</li>
+                                    <li>Email support</li>
+                                    <li>2 users</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="plan-card selected" data-plan="professional">
+                                <div class="plan-name">Professional</div>
+                                <div class="plan-price">$79</div>
+                                <div class="plan-period">per month</div>
+                                <ul class="plan-features">
+                                    <li>5000 products</li>
+                                    <li>Advanced analytics</li>
+                                    <li>Priority support</li>
+                                    <li>10 users</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="plan-card" data-plan="enterprise">
+                                <div class="plan-name">Enterprise</div>
+                                <div class="plan-price">$199</div>
+                                <div class="plan-period">per month</div>
+                                <ul class="plan-features">
+                                    <li>Unlimited products</li>
+                                    <li>24/7 support</li>
+                                    <li>Custom integrations</li>
+                                    <li>Multi-location</li>
+                                </ul>
+                            </div>
+
+                            <div class="plan-card" data-plan="custom">
+                                <div class="plan-name">Custom</div>
+                                <div class="plan-price">Contact</div>
+                                <div class="plan-period">us for pricing</div>
+                                <ul class="plan-features">
+                                    <li>Everything in Enterprise</li>
+                                    <li>Custom development</li>
+                                    <li>On-premise option</li>
+                                    <li>Dedicated support</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" required minlength="6">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn" id="signup-btn">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8002';
+        let selectedPlan = 'professional';
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Clear messages
+            hideMessages();
+        }
+        
+        // Plan selection
+        document.querySelectorAll('.plan-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedPlan = card.dataset.plan;
+            });
+        });
+        
+        // Message functions
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+        
+        // Login form
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing In...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store auth data
+                    localStorage.setItem('auth_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    
+                    showSuccess('Login successful! Redirecting...');
+                    
+                    // Redirect to POS after 1 second
+                    setTimeout(() => {
+                        window.location.href = 'pos.html';
+                    }, 1000);
+                } else {
+                    showError(data.detail || 'Login failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please check if the server is running.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+        
+        // Signup form
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const businessName = document.getElementById('business-name').value;
+            const email = document.getElementById('email').value;
+            const subdomain = document.getElementById('subdomain').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const signupBtn = document.getElementById('signup-btn');
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            // Validate subdomain
+            if (!subdomain || subdomain.length < 3) {
+                showError('Subdomain must be at least 3 characters long');
+                return;
+            }
+            
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'Creating Account...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        business_name: businessName,
+                        email: email,
+                        subdomain: subdomain,
+                        phone: phone || null,
+                        password: password,
+                        confirm_password: confirmPassword,
+                        plan_type: selectedPlan
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store auth data
+                    localStorage.setItem('auth_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    
+                    showSuccess('Account created successfully! Redirecting...');
+                    
+                    // Redirect to POS after 1 second
+                    setTimeout(() => {
+                        window.location.href = 'pos.html';
+                    }, 1000);
+                } else {
+                    showError(data.detail || 'Signup failed');
+                }
+            } catch (error) {
+                showError('Connection error. Please check if the server is running.');
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Create Account';
+            }
+        });
+        
+        // Subdomain checking
+        let subdomainTimeout;
+        document.getElementById('subdomain').addEventListener('input', function() {
+            clearTimeout(subdomainTimeout);
+            const subdomain = this.value.trim();
+            const statusEl = document.getElementById('subdomain-status');
+            
+            if (subdomain.length < 3) {
+                statusEl.innerHTML = '';
+                return;
+            }
+            
+            subdomainTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/auth/check-subdomain/${subdomain}`);
+                    const data = await response.json();
+                    
+                    if (data.available) {
+                        statusEl.innerHTML = `<span style="color: #28a745;">✓ ${subdomain}.dealndone.com is available</span>`;
+                    } else {
+                        statusEl.innerHTML = `<span style="color: #dc3545;">✗ ${data.message}</span>`;
+                        if (data.suggested) {
+                            statusEl.innerHTML += `<br><span style="color: #666;">Try: ${data.suggested}</span>`;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error checking subdomain:', error);
+                }
+            }, 500);
+        });
+        
+        // Auto-generate subdomain from business name
+        document.getElementById('business-name').addEventListener('input', function() {
+            const businessName = this.value.toLowerCase()
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .substring(0, 20);
+            
+            const subdomainField = document.getElementById('subdomain');
+            if (businessName && !subdomainField.value) {
+                subdomainField.value = businessName;
+                subdomainField.dispatchEvent(new Event('input'));
+            }
+        });
+        
+        // Check if user is already logged in
+        if (localStorage.getItem('auth_token')) {
+            window.location.href = 'pos.html';
+        }
+    </script>
+</body>
+</html>

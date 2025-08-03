@@ -1,12 +1,48 @@
 import React, { useState } from 'react';
-import dummyData from '../data/dummyData';
 
 const Vendors = () => {
   const [activeTab, setActiveTab] = useState('vendors');
   const [showAddVendor, setShowAddVendor] = useState(false);
 
   // Use centralized dummy data
-  const { vendors, performance } = dummyData.vendors;
+  const [vendors] = useState([
+    {
+      id: 1,
+      name: 'Fashion Wholesale Co.',
+      contact: 'John Doe',
+      email: 'info@fashionwholesale.com',
+      phone: '(555) 123-4567',
+      address: '123 Main St, Suite 456',
+      notes: 'Good quality products, competitive pricing.',
+      rating: 4.5,
+      totalOrders: 150,
+      totalSpent: 250000,
+    },
+    {
+      id: 2,
+      name: 'Accessories Plus',
+      contact: 'Jane Smith',
+      email: 'sales@accessoriesplus.com',
+      phone: '(555) 987-6543',
+      address: '789 Oak Ave, #102',
+      notes: 'Excellent customer service, fast shipping.',
+      rating: 4.8,
+      totalOrders: 100,
+      totalSpent: 180000,
+    },
+    {
+      id: 3,
+      name: 'Tech Gadgets',
+      contact: 'Mike Johnson',
+      email: 'info@techgadgets.com',
+      phone: '(555) 112-3579',
+      address: '456 Pine Ln, #201',
+      notes: 'Reliable supplier, good communication.',
+      rating: 4.2,
+      totalOrders: 80,
+      totalSpent: 120000,
+    },
+  ]);
 
   const [newVendor, setNewVendor] = useState({
     name: '',
