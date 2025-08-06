@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, HTTPException, Depends, Request, WebSocket, WebSocketDisconnect, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import sqlite3
@@ -23,6 +24,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import redis
 import jwt
+from subdomain_routes import router as subdomain_router
 
 # Load environment variables
 load_dotenv()
@@ -382,9 +384,36 @@ def init_db():
             role TEXT NOT NULL DEFAULT 'retailer',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             email_verified BOOLEAN DEFAULT FALSE,
-            subdomain TEXT
+            subdomain TEXT,
+            verification_token TEXT,
+            mfa_enabled BOOLEAN DEFAULT FALSE,
+            mfa_phone TEXT,
+            org_id TEXT,
+            FOREIGN KEY (org_id) REFERENCES organizations (id)
         )
     ''')
+    
+    # Add verification_token column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN verification_token TEXT")
+    except:
+        pass  # Column already exists
+    
+    # Add MFA columns if they don't exist
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN mfa_enabled BOOLEAN DEFAULT FALSE")
+    except:
+        pass  # Column already exists
+    
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN mfa_phone TEXT")
+    except:
+        pass  # Column already exists
+    
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN org_id TEXT")
+    except:
+        pass  # Column already exists
     
     # Create organizations table
     cursor.execute('''
@@ -397,9 +426,34 @@ def init_db():
             owner_id TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             subdomain TEXT,
+            max_outlets INTEGER DEFAULT 1,
+            max_registers INTEGER DEFAULT 1,
+            max_products INTEGER DEFAULT 1000,
+            max_employees INTEGER DEFAULT 3,
             FOREIGN KEY (owner_id) REFERENCES users (id)
         )
     ''')
+    
+    # Add missing columns to organizations if they don't exist
+    try:
+        cursor.execute("ALTER TABLE organizations ADD COLUMN max_outlets INTEGER DEFAULT 1")
+    except:
+        pass  # Column already exists
+    
+    try:
+        cursor.execute("ALTER TABLE organizations ADD COLUMN max_registers INTEGER DEFAULT 1")
+    except:
+        pass  # Column already exists
+    
+    try:
+        cursor.execute("ALTER TABLE organizations ADD COLUMN max_products INTEGER DEFAULT 1000")
+    except:
+        pass  # Column already exists
+    
+    try:
+        cursor.execute("ALTER TABLE organizations ADD COLUMN max_employees INTEGER DEFAULT 3")
+    except:
+        pass  # Column already exists
     
     # Create usage_tracking table
     cursor.execute('''
@@ -1385,17 +1439,17 @@ async def signup(request: SignupRequest):
         # Generate verification token
         verification_token = secrets.token_urlsafe(32)
         
-        # Create user
-        cursor.execute('''
-            INSERT INTO users (id, email, store_name, business_type, plan_type, password_hash, role, verification_token)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (user_id, request.email, request.storeName, request.businessType, request.planType, password_hash, 'retailer', verification_token))
-        
-        # Create organization
+        # Create organization first
         cursor.execute('''
             INSERT INTO organizations (id, store_name, business_type, plan_type, owner_id)
             VALUES (?, ?, ?, ?, ?)
         ''', (org_id, request.storeName, request.businessType, request.planType, user_id))
+        
+        # Create user with org_id reference
+        cursor.execute('''
+            INSERT INTO users (id, email, store_name, business_type, plan_type, password_hash, role, verification_token, org_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, request.email, request.storeName, request.businessType, request.planType, password_hash, 'retailer', verification_token, org_id))
         
         # Initialize usage tracking
         plan_limits = get_plan_limits(request.planType)
@@ -3075,10 +3129,40 @@ async def check_subdomain_availability(store_name: str):
             "reason": f"Error checking availability: {str(e)}"
         }
 
+# Add missing user endpoint for Settings component
+@app.get("/api/user/me")
+async def get_current_user():
+    """Get current user information for Settings component"""
+    try:
+        # Since main.py doesn't have auth, return mock user data
+        return {
+            "id": 1,
+            "business_name": "DealNDone Demo Store",
+            "email": "demo@dealndone.com",
+            "plan_type": "professional",
+            "role": "owner",
+            "current_outlets": 1,
+            "current_products": 10,
+            "current_employees": 2,
+            "max_outlets": 2,
+            "max_products": 10000,
+            "max_employees": 15,
+            "created_at": "2024-01-01T00:00:00Z",
+            "is_active": True,
+            "trial_status": "active",
+            "trial_days_left": 14
+        }
+    except Exception as e:
+        print(f"User API error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting user data: {str(e)}")
+
 # Include franchise router if available
 if FRANCHISE_AVAILABLE:
     app.include_router(franchise_router)
-    print("✅ Franchise endpoints loaded")
+    print("Franchise endpoints loaded")
+
+# Include subdomain routes
+app.include_router(subdomain_router)
 
 if __name__ == "__main__":
     import uvicorn

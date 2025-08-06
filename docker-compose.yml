@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: dealndone-postgres
+    environment:
+      POSTGRES_DB: dealndone_dev
+      POSTGRES_USER: dealndone
+      POSTGRES_PASSWORD: ${DB_PASS:-dealndone2025}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dealndone -d dealndone_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - dealndone-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: dealndone-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - dealndone-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dealndone-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dealndone.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS:-admin2025}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dealndone-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  dealndone-network:
+    driver: bridge 

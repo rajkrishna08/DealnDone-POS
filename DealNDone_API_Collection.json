@@ -1,0 +1,1059 @@
+{
+	"info": {
+		"_postman_id": "dealndone-2025-api-collection",
+		"name": "DealNDone 2025 API Collection",
+		"description": "Comprehensive API testing collection for DealNDone 2025 POS System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "dealndone-api"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Check if the API server is running"
+					},
+					"response": []
+				},
+				{
+					"name": "User Signup",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"business_name\": \"Test Store\",\n  \"email\": \"test@dealndone.com\",\n  \"password\": \"TestPassword123!\",\n  \"confirm_password\": \"TestPassword123!\",\n  \"plan_type\": \"professional\",\n  \"subdomain\": \"teststore\",\n  \"phone\": \"+1234567890\",\n  \"address\": \"123 Test Street, Test City\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/signup",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "signup"]
+						},
+						"description": "Register a new user account"
+					},
+					"response": []
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identifier\": \"test@dealndone.com\",\n  \"password\": \"TestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with email or subdomain"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						},
+						"description": "Get current user information"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Subdomain Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/check-subdomain/teststore",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "check-subdomain", "teststore"]
+						},
+						"description": "Check if a subdomain is available"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Available Plans",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/plans",
+							"host": ["{{base_url}}"],
+							"path": ["plans"]
+						},
+						"description": "Get available subscription plans"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication and user management endpoints"
+		},
+		{
+			"name": "🏪 Store Management",
+			"item": [
+				{
+					"name": "Create Store",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"business_name\": \"New Store\",\n  \"email\": \"newstore@dealndone.com\",\n  \"password\": \"StorePassword123!\",\n  \"confirm_password\": \"StorePassword123!\",\n  \"plan_type\": \"basic\",\n  \"subdomain\": \"newstore\",\n  \"phone\": \"+1987654321\",\n  \"address\": \"456 New Street, New City\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/stores/create",
+							"host": ["{{base_url}}"],
+							"path": ["stores", "create"]
+						},
+						"description": "Create a new store"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Store Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stores/teststore/info",
+							"host": ["{{base_url}}"],
+							"path": ["stores", "teststore", "info"]
+						},
+						"description": "Get store information by subdomain"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Store Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/stores/check-availability/teststore",
+							"host": ["{{base_url}}"],
+							"path": ["stores", "check-availability", "teststore"]
+						},
+						"description": "Check if a store subdomain is available"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current Store Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/stores/current",
+							"host": ["{{base_url}}"],
+							"path": ["api", "stores", "current"]
+						},
+						"description": "Get current user's store information"
+					},
+					"response": []
+				}
+			],
+			"description": "Store management and information endpoints"
+		},
+		{
+			"name": "📦 Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/products",
+							"host": ["{{base_url}}"],
+							"path": ["products"]
+						},
+						"description": "Get all available products"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/products/shirt_001",
+							"host": ["{{base_url}}"],
+							"path": ["products", "shirt_001"]
+						},
+						"description": "Get specific product details"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Product\",\n  \"price\": 29.99,\n  \"stock\": 100,\n  \"category\": \"clothing\",\n  \"description\": \"A new product for testing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products"]
+						},
+						"description": "Create a new product"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Product\",\n  \"price\": 39.99,\n  \"stock\": 75,\n  \"category\": \"clothing\",\n  \"description\": \"Updated product description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "1"]
+						},
+						"description": "Update an existing product"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "products", "1"]
+						},
+						"description": "Delete a product"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product Stock",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"new_stock\": 25\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/products/shirt_001/stock",
+							"host": ["{{base_url}}"],
+							"path": ["products", "shirt_001", "stock"]
+						},
+						"description": "Update product stock level"
+					},
+					"response": []
+				}
+			],
+			"description": "Product management endpoints"
+		},
+		{
+			"name": "💰 Sales",
+			"item": [
+				{
+					"name": "Process Sale",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"items\": [\n    {\n      \"id\": \"shirt_001\",\n      \"quantity\": 2\n    },\n    {\n      \"id\": \"pants_001\",\n      \"quantity\": 1\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sales",
+							"host": ["{{base_url}}"],
+							"path": ["sales"]
+						},
+						"description": "Process a new sale transaction"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sales/history",
+							"host": ["{{base_url}}"],
+							"path": ["sales", "history"]
+						},
+						"description": "Get sales history"
+					},
+					"response": []
+				}
+			],
+			"description": "Sales processing and history endpoints"
+		},
+		{
+			"name": "📊 Reports & Analytics",
+			"item": [
+				{
+					"name": "Get Reports Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/overview",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "overview"]
+						},
+						"description": "Get overview of all reports"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/sales",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "sales"]
+						},
+						"description": "Get detailed sales reports"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "products"]
+						},
+						"description": "Get product performance reports"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/customers",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "customers"]
+						},
+						"description": "Get customer analytics reports"
+					},
+					"response": []
+				},
+				{
+					"name": "Get AI Predictions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/predictions",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "predictions"]
+						},
+						"description": "Get AI-powered predictions and insights"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Real-time Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/reports/real-time",
+							"host": ["{{base_url}}"],
+							"path": ["api", "reports", "real-time"]
+						},
+						"description": "Get real-time dashboard data"
+					},
+					"response": []
+				}
+			],
+			"description": "Reports and analytics endpoints"
+		},
+		{
+			"name": "🤖 MCP & AI",
+			"item": [
+				{
+					"name": "Get MCP Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mcp/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "mcp", "status"]
+						},
+						"description": "Get MCP orchestrator status"
+					},
+					"response": []
+				},
+				{
+					"name": "Trigger Inventory Check",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mcp/inventory-check",
+							"host": ["{{base_url}}"],
+							"path": ["api", "mcp", "inventory-check"]
+						},
+						"description": "Trigger AI-powered inventory check"
+					},
+					"response": []
+				},
+				{
+					"name": "Trigger Customer Service",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"inquiry\": \"Customer inquiry about product availability\",\n  \"customer_id\": \"cust_123\",\n  \"priority\": \"medium\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/mcp/customer-service",
+							"host": ["{{base_url}}"],
+							"path": ["api", "mcp", "customer-service"]
+						},
+						"description": "Trigger AI customer service"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Agent Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mcp/agents/analytics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "mcp", "agents", "analytics"]
+						},
+						"description": "Get specific AI agent status"
+					},
+					"response": []
+				},
+				{
+					"name": "Get MCP Performance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/mcp/performance",
+							"host": ["{{base_url}}"],
+							"path": ["api", "mcp", "performance"]
+						},
+						"description": "Get MCP performance metrics"
+					},
+					"response": []
+				}
+			],
+			"description": "MCP and AI-related endpoints"
+		},
+		{
+			"name": "⚙️ Features & Settings",
+			"item": [
+				{
+					"name": "Get User Features",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/features",
+							"host": ["{{base_url}}"],
+							"path": ["api", "features"]
+						},
+						"description": "Get available features for current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Check Feature Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/features/ai_analytics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "features", "ai_analytics"]
+						},
+						"description": "Check if a specific feature is enabled"
+					},
+					"response": []
+				},
+				{
+					"name": "Emergency Disable Feature",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/features/emergency-disable/ai_analytics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "features", "emergency-disable", "ai_analytics"]
+						},
+						"description": "Emergency disable a feature"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Feature Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/features/analytics/ai_analytics",
+							"host": ["{{base_url}}"],
+							"path": ["api", "features", "analytics", "ai_analytics"]
+						},
+						"description": "Get analytics for a specific feature"
+					},
+					"response": []
+				}
+			],
+			"description": "Feature flags and settings endpoints"
+		},
+		{
+			"name": "🏢 Enterprise Features",
+			"item": [
+				{
+					"name": "Create Franchise",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"franchise_name\": \"Test Franchise\",\n  \"location\": \"Test City\",\n  \"manager_email\": \"manager@testfranchise.com\",\n  \"profit_sharing_percentage\": 15\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/franchise/create",
+							"host": ["{{base_url}}"],
+							"path": ["api", "franchise", "create"]
+						},
+						"description": "Create a new franchise (Enterprise plan only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Transfer Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"from_location\": \"main_store\",\n  \"to_location\": \"branch_store\",\n  \"product_id\": \"shirt_001\",\n  \"quantity\": 10,\n  \"reason\": \"Stock redistribution\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inventory/transfer",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inventory", "transfer"]
+						},
+						"description": "Transfer stock between locations (Enterprise plan only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Enterprise-level features (requires Enterprise plan)"
+		},
+		{
+			"name": "📋 Categories",
+			"item": [
+				{
+					"name": "Get Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "Get all product categories"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Category\",\n  \"description\": \"A new product category\",\n  \"parent_id\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories"]
+						},
+						"description": "Create a new product category"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Category\",\n  \"description\": \"Updated category description\",\n  \"parent_id\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories", "1"]
+						},
+						"description": "Update a category"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/categories/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "categories", "1"]
+						},
+						"description": "Delete a category"
+					},
+					"response": []
+				}
+			],
+			"description": "Product category management"
+		},
+		{
+			"name": "🖼️ Product Images",
+			"item": [
+				{
+					"name": "Get Product Images",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/product-images",
+							"host": ["{{base_url}}"],
+							"path": ["api", "product-images"]
+						},
+						"description": "Get all product images"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Product Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": 1,\n  \"image_url\": \"https://example.com/image.jpg\",\n  \"alt_text\": \"Product image\",\n  \"is_primary\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/product-images",
+							"host": ["{{base_url}}"],
+							"path": ["api", "product-images"]
+						},
+						"description": "Create a new product image"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product Image",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": 1,\n  \"image_url\": \"https://example.com/updated-image.jpg\",\n  \"alt_text\": \"Updated product image\",\n  \"is_primary\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/product-images/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "product-images", "1"]
+						},
+						"description": "Update a product image"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Product Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/product-images/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "product-images", "1"]
+						},
+						"description": "Delete a product image"
+					},
+					"response": []
+				}
+			],
+			"description": "Product image management"
+		},
+		{
+			"name": "💳 Subscription",
+			"item": [
+				{
+					"name": "Get Subscription",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/subscription",
+							"host": ["{{base_url}}"],
+							"path": ["subscription"]
+						},
+						"description": "Get current subscription details"
+					},
+					"response": []
+				},
+				{
+					"name": "Upgrade Subscription",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"new_plan\": \"enterprise\",\n  \"payment_method\": \"credit_card\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/subscription/upgrade",
+							"host": ["{{base_url}}"],
+							"path": ["subscription", "upgrade"]
+						},
+						"description": "Upgrade subscription plan"
+					},
+					"response": []
+				}
+			],
+			"description": "Subscription management endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set base URL if not set",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://localhost:8000');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-save access token from login responses",
+					"if (pm.response.code === 200) {",
+					"    const response = pm.response.json();",
+					"    if (response.access_token) {",
+					"        pm.environment.set('access_token', response.access_token);",
+					"        console.log('Access token saved automatically');",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"description": "Base URL for the API server"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string",
+			"description": "JWT access token for authenticated requests"
+		}
+	]
+} 

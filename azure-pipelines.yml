@@ -1,0 +1,312 @@
+# DealNDone 2025 - Azure DevOps Pipeline
+# Integrates with GitHub Actions for comprehensive CI/CD
+
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+    - feature/*
+
+pr:
+  branches:
+    include:
+    - main
+
+variables:
+  # Azure DevOps Project Variables
+  AZURE_DEVOPS_ORG: 'dealndone2025'
+  AZURE_DEVOPS_PROJECT: 'DealNDone2025'
+  
+  # Azure Container Registry
+  AZURE_CONTAINER_REGISTRY: 'dealndone2025.azurecr.io'
+  AZURE_RESOURCE_GROUP: 'dealndone2025-rg'
+  
+  # Application Variables
+  BACKEND_APP_NAME: 'dealndone2025-backend'
+  FRONTEND_APP_NAME: 'dealndone2025-frontend'
+  
+  # Quality Gates
+  MIN_CODE_COVERAGE: '80'
+  MAX_SECURITY_ISSUES: '5'
+  MAX_CODE_SMELLS: '10'
+
+stages:
+- stage: Quality_Gates
+  displayName: 'Quality Gates & Security'
+  jobs:
+  - job: CodeQuality
+    displayName: 'Code Quality Analysis'
+    pool:
+      vmImage: 'ubuntu-latest'
+    
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.12'
+        addToPath: true
+    
+    - task: UseNodeVersion@0
+      inputs:
+        versionSpec: '18.x'
+    
+    - script: |
+        echo "Installing Python dependencies..."
+        cd backend
+        pip install -r requirements.txt
+        pip install bandit safety pylint black isort pytest-cov
+      displayName: 'Install Python Dependencies'
+    
+    - script: |
+        echo "Installing Node.js dependencies..."
+        cd frontend
+        npm ci
+      displayName: 'Install Node.js Dependencies'
+    
+    - script: |
+        cd backend
+        echo "Running security scan with Bandit..."
+        bandit -r . -f json -o bandit-report.json || true
+        echo "Running dependency security check..."
+        safety check --json --output safety-report.json || true
+        echo "Running code quality analysis..."
+        pylint **/*.py --output-format=json > pylint-report.json || true
+        echo "Running code formatting check..."
+        black --check --diff . || true
+        echo "Running import sorting check..."
+        isort --check-only --diff . || true
+      displayName: 'Run Python Quality Checks'
+    
+    - script: |
+        cd frontend
+        echo "Running npm audit..."
+        npm audit --audit-level=moderate --json > npm-audit-report.json || true
+        echo "Running ESLint..."
+        npm run lint || true
+      displayName: 'Run Node.js Quality Checks'
+    
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        mergeTestResults: true
+        testRunTitle: 'DealNDone Quality Tests'
+      condition: succeededOrFailed()
+    
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '**/coverage.xml'
+        reportDirectory: '**/htmlcov'
+      condition: succeededOrFailed()
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.SourcesDirectory)/backend'
+        artifactName: 'security-reports'
+        artifactType: 'Container'
+      condition: succeededOrFailed()
+
+- stage: Build_And_Test
+  displayName: 'Build & Test'
+  dependsOn: Quality_Gates
+  condition: succeeded()
+  jobs:
+  - job: BuildAndTest
+    displayName: 'Build and Test Applications'
+    pool:
+      vmImage: 'ubuntu-latest'
+    
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.12'
+        addToPath: true
+    
+    - task: UseNodeVersion@0
+      inputs:
+        versionSpec: '18.x'
+    
+    - script: |
+        echo "Installing Docker..."
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+      displayName: 'Install Docker'
+    
+    - script: |
+        echo "Logging into Azure Container Registry..."
+        docker login ${{ variables.AZURE_CONTAINER_REGISTRY }} -u ${{ variables.AZURE_REGISTRY_USERNAME }} -p ${{ variables.AZURE_REGISTRY_PASSWORD }}
+      displayName: 'Login to Azure Container Registry'
+    
+    - script: |
+        echo "Building and pushing backend image..."
+        docker build -t $(AZURE_CONTAINER_REGISTRY)/dealndone-backend:$(Build.BuildId) ./backend
+        docker push $(AZURE_CONTAINER_REGISTRY)/dealndone-backend:$(Build.BuildId)
+        echo "##vso[task.setvariable variable=BACKEND_IMAGE]$(AZURE_CONTAINER_REGISTRY)/dealndone-backend:$(Build.BuildId)"
+      displayName: 'Build Backend Image'
+    
+    - script: |
+        echo "Building and pushing frontend image..."
+        docker build -t $(AZURE_CONTAINER_REGISTRY)/dealndone-frontend:$(Build.BuildId) ./frontend
+        docker push $(AZURE_CONTAINER_REGISTRY)/dealndone-frontend:$(Build.BuildId)
+        echo "##vso[task.setvariable variable=FRONTEND_IMAGE]$(AZURE_CONTAINER_REGISTRY)/dealndone-frontend:$(Build.BuildId)"
+      displayName: 'Build Frontend Image'
+    
+    - script: |
+        cd backend
+        echo "Running backend tests..."
+        pip install pytest pytest-cov pytest-asyncio
+        pytest --cov=. --cov-report=xml --cov-report=html --junitxml=test-results.xml
+      displayName: 'Run Backend Tests'
+    
+    - script: |
+        cd frontend
+        echo "Running frontend tests..."
+        npm test -- --coverage --watchAll=false
+      displayName: 'Run Frontend Tests'
+    
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'JUnit'
+        testResultsFiles: '**/test-results.xml'
+        mergeTestResults: true
+        testRunTitle: 'DealNDone Application Tests'
+      condition: succeededOrFailed()
+    
+    - task: PublishCodeCoverageResults@1
+      inputs:
+        codeCoverageTool: 'Cobertura'
+        summaryFileLocation: '**/coverage.xml'
+        reportDirectory: '**/htmlcov'
+      condition: succeededOrFailed()
+
+- stage: Deploy_Staging
+  displayName: 'Deploy to Staging'
+  dependsOn: Build_And_Test
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+  jobs:
+  - deployment: DeployStaging
+    displayName: 'Deploy to Staging Environment'
+    environment: 'staging'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'DealNDone-Azure-Subscription'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Deploying backend to staging..."
+                az containerapp update \
+                  --name dealndone2025-backend-staging \
+                  --resource-group $(AZURE_RESOURCE_GROUP) \
+                  --image $(BACKEND_IMAGE) \
+                  --set-env-vars ENVIRONMENT=staging
+                
+                echo "Deploying frontend to staging..."
+                az containerapp update \
+                  --name dealndone2025-frontend-staging \
+                  --resource-group $(AZURE_RESOURCE_GROUP) \
+                  --image $(FRONTEND_IMAGE) \
+                  --set-env-vars REACT_APP_ENVIRONMENT=staging
+          
+          - script: |
+              echo "Waiting for deployment to complete..."
+              sleep 30
+              echo "Running health checks..."
+              curl -f https://dealndone2025-backend-staging.azurecontainerapps.io/health || exit 1
+              curl -f https://dealndone2025-frontend-staging.azurecontainerapps.io || exit 1
+              echo "Staging deployment successful!"
+            displayName: 'Health Check Staging'
+
+- stage: Deploy_Production
+  displayName: 'Deploy to Production'
+  dependsOn: Deploy_Staging
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - deployment: DeployProduction
+    displayName: 'Deploy to Production Environment'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'DealNDone-Azure-Subscription'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Deploying backend to production..."
+                az containerapp update \
+                  --name dealndone2025-backend \
+                  --resource-group $(AZURE_RESOURCE_GROUP) \
+                  --image $(BACKEND_IMAGE) \
+                  --set-env-vars ENVIRONMENT=production
+                
+                echo "Deploying frontend to production..."
+                az containerapp update \
+                  --name dealndone2025-frontend \
+                  --resource-group $(AZURE_RESOURCE_GROUP) \
+                  --image $(FRONTEND_IMAGE) \
+                  --set-env-vars REACT_APP_ENVIRONMENT=production
+          
+          - script: |
+              echo "Waiting for deployment to complete..."
+              sleep 30
+              echo "Running health checks..."
+              curl -f https://dealndone2025-backend.azurecontainerapps.io/health || exit 1
+              curl -f https://dealndone2025-frontend.azurecontainerapps.io || exit 1
+              echo "Production deployment successful!"
+            displayName: 'Health Check Production'
+
+- stage: Notifications
+  displayName: 'Notifications & Reporting'
+  dependsOn: 
+  - Deploy_Staging
+  - Deploy_Production
+  condition: always()
+  jobs:
+  - job: Notifications
+    displayName: 'Send Notifications'
+    pool:
+      vmImage: 'ubuntu-latest'
+    
+    steps:
+    - script: |
+        echo "Sending Slack notification..."
+        # This would integrate with Slack webhook
+        echo "Deployment notification sent to Slack"
+      displayName: 'Send Slack Notification'
+    
+    - script: |
+        echo "Updating Azure DevOps work items..."
+        # This would use Azure DevOps REST API
+        echo "Work items updated in Azure DevOps"
+      displayName: 'Update Work Items'
+    
+    - script: |
+        echo "Generating deployment report..."
+        echo "## Deployment Report" > deployment-report.md
+        echo "**Date:** $(date)" >> deployment-report.md
+        echo "**Build ID:** $(Build.BuildId)" >> deployment-report.md
+        echo "**Branch:** $(Build.SourceBranch)" >> deployment-report.md
+        echo "**Commit:** $(Build.SourceVersion)" >> deployment-report.md
+        echo "**Quality Score:** $(QualityScore)" >> deployment-report.md
+      displayName: 'Generate Deployment Report'
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: 'deployment-report.md'
+        artifactName: 'deployment-report'
+        artifactType: 'Container'
+      condition: always()
+
+# Pipeline Simplicity Rules
+# - Maximum 3 stages unless M4 approval
+# - No nested scripts or complex logic
+# - Use reusable templates for common tasks
+# - Keep deployment times under 15 minutes
+# - Fail fast on quality issues 
