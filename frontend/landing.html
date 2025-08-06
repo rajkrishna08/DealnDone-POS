@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deal n Done - Modern POS for Your Business</title>
+    <title>DealNDone - Smart POS for Retailers</title>
     <style>
         * {
             margin: 0;
@@ -15,18 +15,18 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             color: #333;
+            background: #f8f9fa;
         }
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 1rem 0;
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .nav {
@@ -41,21 +41,8 @@
         .logo {
             font-size: 24px;
             font-weight: bold;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: white;
+            color: #667eea;
             text-decoration: none;
-            transition: opacity 0.3s;
-        }
-
-        .nav-links a:hover {
-            opacity: 0.8;
         }
 
         .nav-buttons {
@@ -66,7 +53,7 @@
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
@@ -76,31 +63,31 @@
 
         .btn-outline {
             background: transparent;
-            color: white;
-            border: 2px solid white;
+            color: #667eea;
+            border: 2px solid #667eea;
         }
 
         .btn-outline:hover {
-            background: white;
-            color: #667eea;
+            background: #667eea;
+            color: white;
         }
 
         .btn-primary {
-            background: white;
-            color: #667eea;
+            background: #667eea;
+            color: white;
         }
 
         .btn-primary:hover {
-            background: #f8f9fa;
-            transform: translateY(-2px);
+            background: #5a6fd8;
+            transform: translateY(-1px);
         }
 
         /* Hero Section */
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             padding: 120px 0 80px;
             text-align: center;
+            color: white;
         }
 
         .hero-content {
@@ -110,9 +97,9 @@
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
-            font-weight: 700;
+            font-weight: bold;
         }
 
         .hero p {
@@ -128,15 +115,10 @@
             flex-wrap: wrap;
         }
 
-        .btn-large {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-        }
-
         /* Pricing Section */
         .pricing {
             padding: 80px 0;
-            background: #f8f9fa;
+            background: white;
         }
 
         .container {
@@ -163,16 +145,15 @@
 
         .pricing-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
-            margin-top: 3rem;
         }
 
         .plan-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             transition: all 0.3s;
             border: 2px solid transparent;
             position: relative;
@@ -180,45 +161,45 @@
 
         .plan-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         }
 
         .plan-card.popular {
             border-color: #667eea;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .plan-card.popular::before {
             content: "Most Popular";
             position: absolute;
-            top: -12px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
             background: #667eea;
             color: white;
-            padding: 6px 20px;
+            padding: 8px 20px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: bold;
         }
 
         .plan-name {
             font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: bold;
             margin-bottom: 0.5rem;
             color: #333;
         }
 
         .plan-price {
-            font-size: 3rem;
-            font-weight: 800;
+            font-size: 2.5rem;
+            font-weight: bold;
             color: #667eea;
             margin-bottom: 0.5rem;
         }
 
         .plan-period {
             color: #666;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .plan-features {
@@ -228,7 +209,7 @@
 
         .plan-features li {
             padding: 0.5rem 0;
-            color: #555;
+            color: #666;
             position: relative;
             padding-left: 1.5rem;
         }
@@ -237,7 +218,7 @@
             content: "✓";
             position: absolute;
             left: 0;
-            color: #28a745;
+            color: #667eea;
             font-weight: bold;
         }
 
@@ -245,9 +226,9 @@
             width: 100%;
             padding: 12px;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -264,21 +245,13 @@
 
         .btn-plan-secondary {
             background: #f8f9fa;
-            color: #333;
-            border: 2px solid #ddd;
+            color: #667eea;
+            border: 2px solid #667eea;
         }
 
         .btn-plan-secondary:hover {
-            background: #e9ecef;
-        }
-
-        .btn-plan-contact {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #667eea;
             color: white;
-        }
-
-        .btn-plan-contact:hover {
-            background: linear-gradient(135deg, #5a6fd8, #6a4190);
         }
 
         /* Modal */
@@ -295,26 +268,28 @@
 
         .modal-content {
             background: white;
-            max-width: 900px;
+            max-width: 500px;
             width: 90%;
-            max-height: 90vh;
             margin: 5vh auto;
-            border-radius: 16px;
+            border-radius: 10px;
             overflow: hidden;
-            display: flex;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .modal-sidebar {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        .modal-header {
+            background: #667eea;
             color: white;
-            padding: 2rem;
-            flex: 1;
+            padding: 1.5rem;
+            text-align: center;
         }
 
-        .modal-main {
-            flex: 1.5;
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .modal-body {
             padding: 2rem;
-            overflow-y: auto;
         }
 
         .close-modal {
@@ -323,9 +298,9 @@
             right: 1rem;
             background: none;
             border: none;
-            font-size: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: #666;
+            color: white;
         }
 
         .form-group {
@@ -335,7 +310,7 @@
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 600;
+            font-weight: 500;
             color: #333;
         }
 
@@ -343,8 +318,8 @@
             width: 100%;
             padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 5px;
+            font-size: 16px;
             transition: border-color 0.3s;
         }
 
@@ -357,7 +332,7 @@
             display: flex;
             align-items: center;
             border: 2px solid #ddd;
-            border-radius: 8px;
+            border-radius: 5px;
             overflow: hidden;
             transition: border-color 0.3s;
         }
@@ -370,7 +345,7 @@
             flex: 1;
             padding: 12px;
             border: none;
-            font-size: 1rem;
+            font-size: 16px;
         }
 
         .subdomain-input input:focus {
@@ -381,12 +356,13 @@
             background: #f8f9fa;
             padding: 12px;
             color: #666;
-            font-size: 1rem;
+            font-size: 16px;
+            border-left: 1px solid #ddd;
         }
 
         .subdomain-status {
             margin-top: 0.5rem;
-            font-size: 0.875rem;
+            font-size: 14px;
         }
 
         .status-available {
@@ -400,7 +376,7 @@
         .tabs {
             display: flex;
             margin-bottom: 2rem;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #ddd;
         }
 
         .tab {
@@ -408,7 +384,7 @@
             border: none;
             padding: 1rem 1.5rem;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 16px;
             color: #666;
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
@@ -429,12 +405,8 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
             .hero h1 {
-                font-size: 2.5rem;
+                font-size: 2rem;
             }
 
             .pricing-grid {
@@ -443,12 +415,6 @@
 
             .plan-card.popular {
                 transform: none;
-            }
-
-            .modal-content {
-                flex-direction: column;
-                margin: 2vh auto;
-                max-height: 96vh;
             }
 
             .cta-buttons {
@@ -462,15 +428,11 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav">
-            <div class="logo">Deal n Done</div>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#contact">Contact</a>
-            </div>
+            <a href="#" class="logo">DealNDone</a>
             <div class="nav-buttons">
-                <a href="#" class="btn btn-outline" onclick="openModal('login')">Login</a>
-                <a href="#" class="btn btn-primary" onclick="openModal('signup')">Get Started</a>
+                <a href="#" class="btn btn-outline" onclick="openModal('login')">Sign In</a>
+                <a href="#" class="btn btn-primary" onclick="openModal('signup')">Start Free Trial</a>
+                <a href="#" class="btn btn-outline" onclick="demoLogin()" style="background: #28a745; color: white; border-color: #28a745;">Demo POS</a>
             </div>
         </nav>
     </header>
@@ -478,11 +440,12 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Modern POS for Smart Businesses</h1>
-            <p>Streamline your sales, manage inventory, and grow your business with our cloud-based POS system. Get your personalized subdomain and start selling today.</p>
+            <h1>The Smart POS for Independent Retailers</h1>
+            <p>Manage inventory, build customer relationships, and boost sales with our modern point-of-sale system.</p>
             <div class="cta-buttons">
-                <button class="btn btn-primary btn-large" onclick="openModal('signup')">Start Free Trial</button>
-                <button class="btn btn-outline btn-large" onclick="scrollToPricing()">View Pricing</button>
+                <button class="btn btn-primary" onclick="openModal('signup')">Start Free Trial</button>
+                <button class="btn btn-outline" onclick="scrollToPricing()">View Pricing</button>
+                <button class="btn btn-outline" onclick="demoLogin()" style="background: #28a745; color: white; border-color: #28a745;">Try Demo POS</button>
             </div>
         </div>
     </section>
@@ -498,7 +461,7 @@
             <div class="pricing-grid">
                 <!-- Basic Plan -->
                 <div class="plan-card">
-                    <div class="plan-name">Basic</div>
+                    <div class="plan-name">Starter</div>
                     <div class="plan-price">$29</div>
                     <div class="plan-period">per month</div>
                     <ul class="plan-features">
@@ -509,7 +472,7 @@
                         <li>Basic reporting</li>
                         <li>yourstore.dealndone.com</li>
                     </ul>
-                    <button class="plan-button btn-plan-secondary" onclick="selectPlan('basic')">Choose Basic</button>
+                    <button class="plan-button btn-plan-secondary" onclick="selectPlan('basic')">Choose Starter</button>
                 </div>
 
                 <!-- Professional Plan -->
@@ -548,24 +511,6 @@
                     </ul>
                     <button class="plan-button btn-plan-primary" onclick="selectPlan('enterprise')">Choose Enterprise</button>
                 </div>
-
-                <!-- Custom Plan -->
-                <div class="plan-card">
-                    <div class="plan-name">Custom</div>
-                    <div class="plan-price">Let's Talk</div>
-                    <div class="plan-period">custom pricing</div>
-                    <ul class="plan-features">
-                        <li>Everything in Enterprise</li>
-                        <li>Custom development</li>
-                        <li>On-premise deployment</li>
-                        <li>Custom SLA</li>
-                        <li>Dedicated infrastructure</li>
-                        <li>Custom integrations</li>
-                        <li>Priority feature requests</li>
-                        <li>Custom domain</li>
-                    </ul>
-                    <button class="plan-button btn-plan-contact" onclick="contactSales()">Contact Sales</button>
-                </div>
             </div>
         </div>
     </section>
@@ -575,19 +520,14 @@
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">&times;</button>
             
-            <div class="modal-sidebar">
-                <div class="logo" style="font-size: 28px; margin-bottom: 1rem;">Deal n Done</div>
-                <p>Join thousands of businesses already using our POS system to streamline their operations and boost sales.</p>
-                <div style="margin-top: 2rem;">
-                    <div style="font-size: 2rem; font-weight: bold;">10,000+</div>
-                    <div style="opacity: 0.9;">Active businesses</div>
-                </div>
+            <div class="modal-header">
+                <h3>Join DealNDone</h3>
             </div>
 
-            <div class="modal-main">
+            <div class="modal-body">
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab('signup')">Sign Up</button>
-                    <button class="tab" onclick="switchTab('login')">Login</button>
+                    <button class="tab" onclick="switchTab('login')">Sign In</button>
                 </div>
 
                 <!-- Signup Form -->
@@ -650,7 +590,7 @@
 
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
-                                Login
+                                Sign In
                             </button>
                         </div>
 
@@ -664,8 +604,30 @@
     </div>
 
     <script>
-        const API_BASE = "http://localhost:8000";
+        const API_BASE = "http://localhost:8005";
         let selectedPlanType = 'professional';
+
+        // Plan definitions with proper mapping
+        const PLAN_DEFINITIONS = {
+            'basic': {
+                name: 'Starter',
+                price: 29,
+                features: ['Up to 500 products', 'Basic sales tracking', 'Email support', '2 user accounts', 'Basic reporting'],
+                limits: { products: 500, users: 2, registers: 1, outlets: 1 }
+            },
+            'professional': {
+                name: 'Professional', 
+                price: 79,
+                features: ['Up to 5,000 products', 'Advanced analytics', 'Priority support', '10 user accounts', 'Inventory management', 'Custom reports', 'API access'],
+                limits: { products: 5000, users: 10, registers: 3, outlets: 2 }
+            },
+            'enterprise': {
+                name: 'Enterprise',
+                price: 199,
+                features: ['Unlimited products', 'Custom integrations', '24/7 phone support', 'Unlimited users', 'Advanced reporting', 'Multi-location support', 'White-label branding', 'Dedicated account manager'],
+                limits: { products: -1, users: -1, registers: 10, outlets: 5 }
+            }
+        };
 
         // Modal functions
         function openModal(tab = 'signup') {
@@ -691,25 +653,58 @@
 
         function selectPlan(plan) {
             selectedPlanType = plan;
+            console.log('Selected plan:', plan, PLAN_DEFINITIONS[plan]);
             openModal('signup');
-        }
-
-        function contactSales() {
-            alert('Contact our sales team at sales@dealndone.com or call (555) 123-4567');
         }
 
         function scrollToPricing() {
             document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Subdomain checking
+        function demoLogin() {
+            // Create demo user data with proper plan structure
+            const demoUserInfo = {
+                id: 'demo_' + Date.now(),
+                business_name: 'Demo Store',
+                email: 'demo@dealndone.com',
+                subdomain: 'demo-store',
+                plan_type: 'professional',
+                plan_details: PLAN_DEFINITIONS['professional'],
+                trial_status: 'active',
+                trial_days_left: 14,
+                created_at: new Date().toISOString(),
+                subscription_status: 'active'
+            };
+            
+            const demoToken = `demo_token_${Date.now()}`;
+            
+            // Store demo data in localStorage with proper structure
+            localStorage.setItem('access_token', demoToken);
+            localStorage.setItem('user_info', JSON.stringify(demoUserInfo));
+            localStorage.setItem('selected_plan', 'professional');
+            
+            // Show demo message
+            alert(`🎉 Welcome to DealNDone Demo!\n\nYou're now accessing the POS system with demo data.\n\nBusiness: ${demoUserInfo.business_name}\nPlan: ${demoUserInfo.plan_details.name}\nSubdomain: ${demoUserInfo.subdomain}.dealndone.com\nTrial: ${demoUserInfo.trial_days_left} days remaining\n\nClick OK to enter the POS system.`);
+            
+            // Redirect to POS
+            window.location.href = '/frontend/pos.html';
+        }
+
+        // Subdomain checking with improved validation
         let subdomainCheckTimeout;
         document.getElementById('subdomain').addEventListener('input', function() {
             clearTimeout(subdomainCheckTimeout);
-            const subdomain = this.value.trim();
+            const subdomain = this.value.trim().toLowerCase();
             
             if (subdomain.length < 3) {
                 document.getElementById('subdomainStatus').innerHTML = '';
+                return;
+            }
+
+            // Validate subdomain format
+            const subdomainRegex = /^[a-z0-9-]+$/;
+            if (!subdomainRegex.test(subdomain)) {
+                document.getElementById('subdomainStatus').innerHTML = '<span class="status-taken">✗ Only letters, numbers, and hyphens allowed</span>';
                 return;
             }
 
@@ -733,11 +728,21 @@
                     }
                 }
             } catch (error) {
-                console.error('Error checking subdomain:', error);
+                // If backend is not available, use mock functionality
+                console.log('Backend not available, using mock subdomain check');
+                
+                const statusEl = document.getElementById('subdomainStatus');
+                
+                // Mock subdomain availability (always available for testing)
+                if (subdomain.length >= 3) {
+                    statusEl.innerHTML = `<span class="status-available">✓ ${subdomain}.dealndone.com is available (Mock)</span>`;
+                } else {
+                    statusEl.innerHTML = '';
+                }
             }
         }
 
-        // Form handlers
+        // Form handlers with improved plan handling
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -749,10 +754,16 @@
                 return;
             }
 
+            const subdomain = document.getElementById('subdomain').value.trim().toLowerCase();
+            if (subdomain.length < 3) {
+                alert('Please enter a valid subdomain (at least 3 characters)');
+                return;
+            }
+
             const formData = {
                 business_name: document.getElementById('businessName').value,
                 email: document.getElementById('email').value,
-                subdomain: document.getElementById('subdomain').value,
+                subdomain: subdomain,
                 password: password,
                 confirm_password: confirmPassword,
                 plan_type: selectedPlanType,
@@ -760,27 +771,62 @@
             };
 
             try {
+                // Try to connect to the real backend first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+                
                 const response = await fetch(`${API_BASE}/auth/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
-
-                const data = await response.json();
+                
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
+                    const data = await response.json();
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    localStorage.setItem('selected_plan', selectedPlanType);
                     alert(`Welcome! Your account has been created with ${data.user_info.plan_type} plan.`);
-                    window.location.href = 'pos.html';
+                    window.location.href = '/frontend/pos.html';
                 } else {
+                    const data = await response.json();
                     alert(data.detail || 'Signup failed');
                 }
             } catch (error) {
-                alert('Network error. Please try again.');
-                console.error('Signup error:', error);
+                // If backend is not available, use mock functionality
+                console.log('Backend not available, using mock signup');
+                
+                // Create comprehensive mock user data with plan details
+                const mockUserInfo = {
+                    id: Date.now(),
+                    business_name: formData.business_name,
+                    email: formData.email,
+                    subdomain: formData.subdomain,
+                    plan_type: selectedPlanType,
+                    plan_details: PLAN_DEFINITIONS[selectedPlanType],
+                    trial_status: 'active',
+                    trial_days_left: 14,
+                    created_at: new Date().toISOString(),
+                    subscription_status: 'active',
+                    phone: formData.phone
+                };
+                
+                const mockToken = `mock_token_${Date.now()}`;
+                
+                localStorage.setItem('access_token', mockToken);
+                localStorage.setItem('user_info', JSON.stringify(mockUserInfo));
+                localStorage.setItem('selected_plan', selectedPlanType);
+                
+                const planDetails = PLAN_DEFINITIONS[selectedPlanType];
+                alert(`✅ Mock Signup Successful!\n\nWelcome to DealNDone!\n\nBusiness: ${formData.business_name}\nPlan: ${planDetails.name} ($${planDetails.price}/month)\nSubdomain: ${formData.subdomain}.dealndone.com\nTrial: 14 days remaining\n\nNote: This is a mock signup for testing. Backend integration will be available soon.`);
+                
+                // Redirect to POS page
+                window.location.href = '/frontend/pos.html';
             }
         });
 
@@ -793,27 +839,61 @@
             };
 
             try {
+                // Try to connect to the real backend first
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+                
                 const response = await fetch(`${API_BASE}/auth/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
                 });
-
-                const data = await response.json();
+                
+                clearTimeout(timeoutId);
 
                 if (response.ok) {
+                    const data = await response.json();
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    localStorage.setItem('selected_plan', data.user_info.plan_type);
                     alert(`Welcome back!`);
-                    window.location.href = 'pos.html';
+                    window.location.href = '/frontend/pos.html';
                 } else {
+                    const data = await response.json();
                     alert(data.detail || 'Login failed');
                 }
             } catch (error) {
-                alert('Network error. Please try again.');
-                console.error('Login error:', error);
+                // If backend is not available, use mock functionality
+                console.log('Backend not available, using mock login');
+                console.log('Error details:', error.message);
+                
+                // Mock successful login with proper plan structure
+                const mockUserInfo = {
+                    id: Date.now(),
+                    business_name: 'Demo Store',
+                    email: formData.email,
+                    subdomain: 'demo-store',
+                    plan_type: 'professional',
+                    plan_details: PLAN_DEFINITIONS['professional'],
+                    trial_status: 'active',
+                    trial_days_left: 10,
+                    created_at: new Date().toISOString(),
+                    subscription_status: 'active'
+                };
+                
+                const mockToken = `mock_token_${Date.now()}`;
+                
+                localStorage.setItem('access_token', mockToken);
+                localStorage.setItem('user_info', JSON.stringify(mockUserInfo));
+                localStorage.setItem('selected_plan', 'professional');
+                
+                alert(`✅ Mock Login Successful!\n\nWelcome back to DealNDone!\n\nBusiness: ${mockUserInfo.business_name}\nPlan: ${mockUserInfo.plan_details.name}\nSubdomain: ${mockUserInfo.subdomain}.dealndone.com\n\nNote: This is a mock login for testing. Backend integration will be available soon.`);
+                
+                // Redirect to POS page
+                window.location.href = '/frontend/pos.html';
             }
         });
 
@@ -824,7 +904,7 @@
             }
         });
 
-        // Auto-fill subdomain based on business name
+        // Auto-fill subdomain based on business name with improved logic
         document.getElementById('businessName').addEventListener('input', function() {
             const businessName = this.value.toLowerCase()
                 .replace(/[^a-zA-Z0-9\s-]/g, '')
@@ -837,6 +917,13 @@
                     checkSubdomainAvailability(businessName);
                 }
             }
+        });
+
+        // Initialize page with proper plan selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default plan
+            selectedPlanType = 'professional';
+            console.log('Default plan set to:', selectedPlanType);
         });
     </script>
 </body>

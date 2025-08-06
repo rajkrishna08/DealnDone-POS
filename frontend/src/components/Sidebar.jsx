@@ -19,14 +19,20 @@ import {
   Wallet,
   ChevronDown,
   Zap,
-  Smartphone
+  Smartphone,
+  LogOut,
+  Store,
+  HelpCircle,
+  Bell,
+  Crown
 } from 'lucide-react';
+import StoreSelector from './StoreSelector';
 
 const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
   const [expandedMenus, setExpandedMenus] = useState([]);
 
   const menuItems = [
-    { name: 'Dashboard', icon: <Home className="w-5 h-5" />, path: 'owner-dashboard' },
+    { name: 'Dashboard', icon: <Home className="w-5 h-5" />, path: 'store-dashboard' },
     {
       name: 'Sales',
       icon: <ShoppingCart className="w-5 h-5" />,
@@ -61,7 +67,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
       name: 'Reports',
       icon: <BarChart3 className="w-5 h-5" />,
       hasSubmenu: true,
-      submenu: ['Sales Reports', 'Inventory Reports', 'Customer Reports', 'Financial Reports', 'Analytics Dashboard', 'Custom Reports']
+      submenu: ['Financial Reports', 'Advanced Reports', 'Inventory Reports', 'Real-time Analytics', 'Customer Reports', 'Store Dashboard Reports']
     },
     {
       name: 'Settings',
@@ -78,6 +84,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
     { name: 'DealBot AI', icon: <MessageSquare className="w-5 h-5" />, path: 'dealbot-ai' },
     { name: 'MCP Dashboard', icon: <Zap className="w-5 h-5" />, path: 'mcp-dashboard' },
     { name: 'Orchestrator Monitor', icon: <Zap className="w-5 h-5" />, path: 'orchestrator-monitor' },
+    { name: 'Subdomain Demo', icon: <Globe className="w-5 h-5" />, path: 'subdomain-demo' },
     { name: 'Landing', icon: <Globe className="w-5 h-5" />, path: 'landing' },
     {
       name: 'Mobile POS',
@@ -96,6 +103,12 @@ const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
       href: 'modern-pos',
       icon: <ShoppingCart className="w-5 h-5" />,
       description: 'Complete Sales & Receipt System'
+    },
+    {
+      name: 'MVC POS',
+      href: 'mvc-pos',
+      icon: <ShoppingCart className="w-5 h-5" />,
+      description: 'MVC Architecture POS System'
     }
   ];
 
@@ -233,16 +246,7 @@ const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
           onNavigate('sales-targets');
           break;
         default:
-          onNavigate('pos-screen');
-      }
-    } else if (parentItem === 'Marketing') {
-      // Handle marketing submodules
-      switch (subItem) {
-        case 'Campaigns':
-          onNavigate('marketing-campaigns');
-          break;
-        default:
-          onNavigate('marketing-campaigns');
+          onNavigate('sales-screen');
       }
     } else if (parentItem === 'Inventory') {
       // Handle inventory submodules
@@ -274,132 +278,140 @@ const Sidebar = ({ currentView, onNavigate, onLogout, user }) => {
     } else if (parentItem === 'Reports') {
       // Handle reports submodules
       switch (subItem) {
-        case 'Sales Reports':
-          onNavigate('sales-reports');
+        case 'Financial Reports':
+          onNavigate('financial-reports');
+          break;
+        case 'Advanced Reports':
+          onNavigate('advanced-reports');
           break;
         case 'Inventory Reports':
           onNavigate('inventory-reports');
           break;
+        case 'Real-time Analytics':
+          onNavigate('real-time-analytics');
+          break;
         case 'Customer Reports':
           onNavigate('customer-reports');
           break;
-        case 'Financial Reports':
-          onNavigate('financial-reports');
-          break;
-        case 'Analytics Dashboard':
-          onNavigate('analytics-dashboard');
-          break;
-        case 'Custom Reports':
-          onNavigate('custom-reports');
+        case 'Store Dashboard Reports':
+          onNavigate('store-dashboard-reports');
           break;
         default:
-          onNavigate('sales-reports');
+          onNavigate('financial-reports');
+      }
+    } else if (parentItem === 'Marketing') {
+      // Handle marketing submodules
+      switch (subItem) {
+        case 'Campaigns':
+          onNavigate('marketing-campaigns');
+          break;
+        default:
+          onNavigate('marketing-campaigns');
       }
     }
   };
 
   return (
-    <div className="w-64 bg-gray-900 border-r border-gray-700 h-screen flex flex-col">
-      {/* Brand Logo */}
-      <div className="p-6 border-b border-gray-700 bg-gray-800">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-600 rounded-lg">
-            <Zap className="w-6 h-6 text-white" />
+    <div className="w-64 bg-gray-900 text-white h-screen flex flex-col">
+      {/* Branding */}
+      <div className="p-6 border-b border-gray-800">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-xl text-white">Deal n Done</h1>
-            <p className="text-xs text-gray-300">Point of Sale</p>
+            <h1 className="text-lg font-bold text-white">Deal n Done</h1>
+            <p className="text-xs text-gray-400">Point of Sale</p>
           </div>
         </div>
-        {user && (
-          <div className="mt-4 pt-4 border-t border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-300">{user.email}</span>
-              <button
-                onClick={onLogout}
-                className="text-sm text-red-400 hover:text-red-300"
-              >
-                Logout
-              </button>
+      </div>
+
+      {/* User Info */}
+      <div className="p-4 border-b border-gray-800">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-sm font-medium text-white">
+                {user?.email?.charAt(0).toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white">
+                {user?.email || 'demo@dealndone.com'}
+              </p>
             </div>
           </div>
-        )}
+          <button
+            onClick={onLogout}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-1">
-          {menuItems.map((item) => (
-            <div key={item.name}>
-              <button
-                onClick={() => {
-                  if (item.name === 'Sales') {
-                    // For Sales module, show POS screen but also toggle submenu
-                    onNavigate('pos-screen');
-                    setExpandedMenus(prev => 
-                      prev.includes(item.name) 
-                        ? prev.filter(menu => menu !== item.name)
-                        : [...prev, item.name]
-                    );
-                  } else {
-                    handleMenuClick(item.name);
-                  }
-                }}
-                className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-all duration-200 hover:bg-gray-800 ${
-                  currentView === item.path ? 'bg-blue-600 text-white border-l-4 border-blue-400' : 'text-gray-300'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="font-medium">{item.name}</span>
-                </div>
-                {item.hasSubmenu && (
-                  <ChevronDown className={`text-gray-400 transition-transform duration-200 w-4 h-4 ${
-                    expandedMenus.includes(item.name) ? 'rotate-180' : ''
-                  }`} />
-                )}
-              </button>
-              
-              {item.hasSubmenu && expandedMenus.includes(item.name) && (
-                <div className="ml-6 mt-1 space-y-1">
-                  {item.submenu.map((sub, index) => (
-                    <button
-                      key={sub}
-                      className={`w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg transition-all duration-200 hover:bg-gray-800 text-sm ${
-                        index === 0 ? 'text-blue-400 font-medium' : 'text-gray-400'
+      <nav className="flex-1 overflow-y-auto p-4">
+        <ul className="space-y-2">
+          {menuItems.map((item, index) => (
+            <li key={index}>
+              {item.hasSubmenu ? (
+                <div>
+                  <button
+                    onClick={() => handleMenuClick(item.name)}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                      currentView === item.name.toLowerCase().replace(/\s+/g, '-')
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      {item.icon}
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </div>
+                    <ChevronDown 
+                      className={`w-4 h-4 transition-transform ${
+                        expandedMenus.includes(item.name) ? 'rotate-180' : ''
                       }`}
-                      onClick={() => handleSubmenuClick(item.name, sub)}
-                    >
-                      <span className="text-sm">
-                        {item.name === 'Settings' && sub === 'General Setup' ? <Settings className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Billing & Subscription' ? <CreditCard className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Outlets & Registers' ? <Building2 className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Loyalty Program' ? <Heart className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Employees' ? <Users className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Sales Tax' ? <DollarSign className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Payment Types' ? <Wallet className="w-4 h-4" /> :
-                         item.name === 'Settings' && sub === 'Security & Access' ? <Shield className="w-4 h-4" /> :
-                         item.name === 'Employees' && sub === 'Employee Management' ? <Users className="w-4 h-4" /> :
-                         item.name === 'Employees' && sub === 'Roles & Permissions' ? <Shield className="w-4 h-4" /> :
-                         item.name === 'Employees' && sub === 'Timesheets' ? <FileText className="w-4 h-4" /> : 
-                         <span className="w-4 h-4">•</span>}
-                      </span>
-                      <span className="font-medium">{sub}</span>
-                    </button>
-                  ))}
+                    />
+                  </button>
+                  
+                  {expandedMenus.includes(item.name) && (
+                    <ul className="ml-8 mt-2 space-y-1">
+                      {item.submenu.map((subItem, subIndex) => (
+                        <li key={subIndex}>
+                          <button
+                            onClick={() => handleSubmenuClick(item.name, subItem)}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                          >
+                            {subItem}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
+              ) : (
+                <button
+                  onClick={() => handleMenuClick(item.name)}
+                  className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                    currentView === item.path || currentView === item.href
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  }`}
+                >
+                  {item.icon}
+                  <span className="text-sm font-medium">{item.name}</span>
+                </button>
               )}
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-700 bg-gray-800">
-        <div className="text-center">
-          <p className="text-xs text-gray-400">Deal n Done POS</p>
-          <p className="text-xs text-gray-500">v1.0.0</p>
-        </div>
+      {/* Version Info */}
+      <div className="p-4 border-t border-gray-800">
+        <p className="text-xs text-gray-400 text-center">Deal n Done POS v1.0.0</p>
       </div>
     </div>
   );

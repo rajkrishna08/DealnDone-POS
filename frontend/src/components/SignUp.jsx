@@ -1,135 +1,216 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Check, Star, ShoppingBag, Scissors, Utensils } from 'lucide-react';
 
-const SignUp = () => {
+const SignUp = ({ onNavigate, onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
     name: '',
+    storeName: '',
     phone: '',
-    planType: 'monthly',
+    businessType: '', // NEW: Business type selection
+    planType: 'basic',
     agreeToTerms: false
   });
-
+  
+  const [selectedPlan, setSelectedPlan] = useState('basic');
+  const [step, setStep] = useState(1); // Start with business type selection
+  const [subdomain, setSubdomain] = useState('');
+  const [subdomainAvailable, setSubdomainAvailable] = useState(null);
+  
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const pricingPlans = [
+  // Business types with icons and descriptions
+  const businessTypes = [
+    {
+      id: 'retail',
+      name: 'Retail Store',
+      icon: <ShoppingBag className="w-8 h-8" />,
+      description: 'Sell products in-store or online',
+      examples: 'Clothing, Electronics, Groceries',
+      features: ['Inventory Management', 'Barcode Scanning', 'Sales Tracking'],
+      recommendedPlan: 'basic'
+    },
+    {
+      id: 'services',
+      name: 'Service Business',
+      icon: <Scissors className="w-8 h-8" />,
+      description: 'Provide services to customers',
+      examples: 'Salon, Tailoring, Repairs',
+      features: ['Appointment Booking', 'Service Scheduling', 'Customer Management'],
+      recommendedPlan: 'professional'
+    },
+    {
+      id: 'restaurant',
+      name: 'Restaurant (Coming Q1 2026)',
+      icon: <Utensils className="w-8 h-8" />,
+      description: 'Food service and dining',
+      examples: 'Restaurant, Cafe, Food Truck',
+      features: ['Table Management', 'Kitchen Display', 'Delivery Integration'],
+      recommendedPlan: 'enterprise',
+      comingSoon: true
+    }
+  ];
+
+  const plans = [
+    {
+      id: 'free',
+      name: 'Free',
+      price: 0,
+      period: 'month',
+      description: 'Perfect for small businesses getting started',
+      features: [
+        '1 Store Location',
+        'Basic POS Features',
+        'Up to 100 Products',
+        'Email Support',
+        'Basic Reports'
+      ],
+      popular: false
+    },
     {
       id: 'basic',
       name: 'Basic',
       price: 29,
       period: 'month',
-      registers: 1,
-      outlets: 1,
+      description: 'Great for growing retail businesses',
       features: [
-        'Up to 1,000 products',
-        'Basic inventory management',
-        'Simple sales reports',
-        'Email support',
-        'Mobile app access',
-        'Basic integrations'
+        '1 Store Location',
+        'Advanced POS Features',
+        'Unlimited Products',
+        'Priority Email Support',
+        'Advanced Reports & Analytics',
+        'Multi-currency Support',
+        'Inventory Management'
       ],
-      popular: false
+      popular: true
     },
     {
       id: 'professional',
       name: 'Professional',
       price: 79,
       period: 'month',
-      registers: 3,
-      outlets: 2,
+      description: 'For established businesses with multiple locations',
       features: [
-        'Up to 10,000 products',
-        'Advanced inventory management',
-        'Detailed analytics & reports',
-        'Priority email & phone support',
-        'Multi-location support',
-        'Advanced integrations',
-        'Employee management',
-        'Loyalty program'
+        'All Basic Features',
+        'Advanced Analytics',
+        'Multi-user Access',
+        'Employee Management',
+        'Customer Loyalty Program',
+        'Integration Support',
+        'Phone Support'
       ],
-      popular: true
+      popular: false
     },
     {
       id: 'enterprise',
       name: 'Enterprise',
       price: 199,
       period: 'month',
-      registers: 10,
-      outlets: 5,
+      description: 'For large businesses and franchises',
       features: [
-        'Unlimited products',
-        'Full inventory suite',
-        'Custom reporting & analytics',
-        '24/7 dedicated support',
-        'Unlimited locations',
-        'Custom integrations',
-        'Advanced security',
-        'API access',
-        'White-label options',
-        'Dedicated account manager'
-      ],
-      popular: false
-    },
-    {
-      id: 'custom',
-      name: 'Custom',
-      price: 'Contact Us',
-      period: 'custom',
-      registers: 'Unlimited',
-      outlets: 'Unlimited',
-      features: [
-        'Custom feature development',
-        'On-premise deployment',
-        'Custom integrations',
-        'Dedicated support team',
-        'SLA guarantees',
-        'Training & onboarding',
-        'Custom branding',
-        'Advanced security compliance'
+        'All Professional Features',
+        'Unlimited Store Locations',
+        'Warehouse Management',
+        'Custom Integrations',
+        'Dedicated Account Manager',
+        '24/7 Priority Support'
       ],
       popular: false
     }
   ];
 
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, planType: selectedPlan }));
+  }, [selectedPlan]);
+
+  // Auto-select recommended plan based on business type
+  useEffect(() => {
+    if (formData.businessType) {
+      const businessType = businessTypes.find(bt => bt.id === formData.businessType);
+      if (businessType && !businessType.comingSoon) {
+        setSelectedPlan(businessType.recommendedPlan);
+      }
+    }
+  }, [formData.businessType]);
+
+  // Generate subdomain from store name
+  useEffect(() => {
+    if (formData.storeName) {
+      const generatedSubdomain = formData.storeName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .substring(0, 20);
+      setSubdomain(generatedSubdomain);
+      checkSubdomainAvailability(generatedSubdomain);
+    }
+  }, [formData.storeName]);
+
+  const checkSubdomainAvailability = async (subdomain) => {
+    if (subdomain.length < 3) return;
+    
+    try {
+      // Simulate API call - replace with actual endpoint
+      const response = await fetch(`/api/check-subdomain?store_name=${subdomain}`);
+      const data = await response.json();
+      setSubdomainAvailable(data.available);
+    } catch (error) {
+      // For demo, assume available
+      setSubdomainAvailable(true);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
-
+    
+    // Business type validation
+    if (!formData.businessType) {
+      newErrors.businessType = 'Please select your business type';
+    }
+    
     // Email validation
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-
+    
     // Password validation
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
-
+    
     // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-
+    
     // Name validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-
-    // Plan validation
-    if (!formData.planType) {
-      newErrors.planType = 'Please select a plan';
+    
+    // Store name validation
+    if (!formData.storeName.trim()) {
+      newErrors.storeName = 'Store name is required';
+    } else if (formData.storeName.length < 3) {
+      newErrors.storeName = 'Store name must be at least 3 characters';
     }
-
+    
+    // Subdomain validation
+    if (subdomain && subdomain.length < 3) {
+      newErrors.subdomain = 'Subdomain must be at least 3 characters';
+    }
+    
     // Terms validation
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
-
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -140,7 +221,7 @@ const SignUp = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -150,227 +231,509 @@ const SignUp = () => {
     }
   };
 
-  const handlePlanSelect = (planId) => {
-    setFormData(prev => ({
-      ...prev,
-      planType: planId
-    }));
+  const handleBusinessTypeSelect = (businessTypeId) => {
+    setFormData(prev => ({ ...prev, businessType: businessTypeId }));
+    setErrors(prev => ({ ...prev, businessType: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) {
       return;
     }
-
+    
     setIsLoading(true);
-
+    
     try {
-      // Simulate API call
-      console.log('Signing up with data:', formData);
+      // Create user account with enhanced data
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          storeName: formData.storeName,
+          subdomain: subdomain,
+          businessType: formData.businessType,
+          email: formData.email,
+          phone: formData.phone || '',
+          planType: formData.planType,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          agreeToTerms: formData.agreeToTerms
+        }),
+      });
+
+      const data = await response.json();
       
-      // Here you would make the actual API call
-      // const response = await fetch('/api/signup', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-
-      // Simulate success
-      setTimeout(() => {
-        alert('Account created successfully! Please check your email for verification.');
-        // Redirect to login or dashboard
-        window.location.href = '/login';
-      }, 2000);
-
+      if (response.ok && data.success) {
+        // Store user data for login
+        localStorage.setItem('signupEmail', formData.email);
+        localStorage.setItem('signupStoreName', formData.storeName);
+        localStorage.setItem('signupPlan', formData.planType);
+        localStorage.setItem('businessType', formData.businessType);
+        localStorage.setItem('subdomain', subdomain);
+        
+        // If onLogin is provided, use it directly
+        if (onLogin && data.user) {
+          onLogin({
+            ...data.user,
+            token: data.token || data.access_token,
+            store: data.store,
+            plan: formData.planType,
+            businessType: formData.businessType,
+            subdomain: subdomain
+          });
+        } else {
+          // Navigate to login with success message
+          onNavigate('login', { 
+            message: 'Account created successfully! Please sign in with your credentials.',
+            email: formData.email,
+            storeName: formData.storeName,
+            businessType: formData.businessType
+          });
+        }
+      } else {
+        setErrors({ general: data.detail || data.message || 'Signup failed. Please try again.' });
+      }
     } catch (error) {
       console.error('Signup error:', error);
-      setErrors({ general: 'Signup failed. Please try again.' });
+      setErrors({ general: 'Network error. Please try again.' });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const BusinessTypeCard = ({ businessType, isSelected, onSelect }) => (
+    <div 
+      className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+        isSelected 
+          ? 'border-blue-600 bg-blue-50 shadow-md' 
+          : 'border-gray-200 hover:border-blue-300'
+      } ${businessType.comingSoon ? 'opacity-60' : ''}`}
+      onClick={() => !businessType.comingSoon && onSelect(businessType.id)}
+    >
+      {businessType.comingSoon && (
+        <div className="absolute top-2 right-2">
+          <span className="bg-gray-500 text-white text-xs px-2 py-1 rounded">
+            Coming Soon
+          </span>
+        </div>
+      )}
+      
+      <div className="text-center mb-4">
+        <div className="flex justify-center mb-3">
+          {businessType.icon}
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{businessType.name}</h3>
+        <p className="text-sm text-gray-600 mb-2">{businessType.description}</p>
+        <p className="text-xs text-gray-500">{businessType.examples}</p>
+      </div>
+
+      <ul className="space-y-1 mb-4">
+        {businessType.features.map((feature, index) => (
+          <li key={index} className="flex items-center text-xs">
+            <Check className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
+            <span className="text-gray-700">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      
+      {isSelected && (
+        <div className="absolute top-4 right-4">
+          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+            <Check className="w-4 h-4 text-white" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const PlanCard = ({ plan, isSelected, onSelect }) => (
+    <div 
+      className={`relative border-2 rounded-lg p-6 cursor-pointer transition-all duration-200 ${
+        isSelected 
+          ? 'border-blue-600 bg-blue-50 shadow-md' 
+          : 'border-gray-200 hover:border-blue-300'
+      }`}
+      onClick={() => onSelect(plan.id)}
+    >
+      {plan.popular && (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+          <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full flex items-center">
+            <Star className="w-3 h-3 mr-1" />
+            Most Popular
+          </span>
+        </div>
+      )}
+      
+      <div className="text-center mb-4">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+        <div className="mb-2">
+          <span className="text-3xl font-bold text-blue-600">
+            ${plan.price}
+          </span>
+          <span className="text-gray-500">/{plan.period}</span>
+        </div>
+        <p className="text-sm text-gray-600">{plan.description}</p>
+      </div>
+
+      <ul className="space-y-2 mb-4">
+        {plan.features.map((feature, index) => (
+          <li key={index} className="flex items-center text-sm">
+            <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
+            <span className="text-gray-700">{feature}</span>
+          </li>
+        ))}
+      </ul>
+      
+      {isSelected && (
+        <div className="absolute top-4 right-4">
+          <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+            <Check className="w-4 h-4 text-white" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl w-full space-y-8">
         {/* Header */}
         <div className="text-center">
+          <button
+            onClick={() => onNavigate('landing')}
+            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Home
+          </button>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Join Deal n Done
+            Create Your Store Account
           </h1>
           <p className="text-lg text-gray-600">
-            Start your retail journey with our powerful POS system
+            Choose your business type and set up your online store
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Pricing Plans */}
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              Choose Your Plan
-            </h2>
-            <div className="space-y-4">
-              {pricingPlans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`relative p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                    formData.planType === plan.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  } ${plan.popular ? 'ring-2 ring-blue-500' : ''}`}
-                  onClick={() => handlePlanSelect(plan.id)}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900">
-                        {plan.name}
-                      </h3>
-                      <p className="text-gray-600">Billed every {plan.period}</p>
-                      <div className="mt-2 text-sm text-gray-600">
-                        <span className="font-medium">{plan.registers} Register{plan.registers !== 1 ? 's' : ''}</span> • <span className="font-medium">{plan.outlets} Outlet{plan.outlets !== 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-3xl font-bold text-gray-900">
-                        {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        per {plan.period}
-                      </div>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-gray-700">
-                        <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
+          
+          {/* Step Indicator */}
+          <div className="flex justify-center mt-6 mb-8">
+            <div className="flex items-center space-x-4">
+              <div className={`flex items-center ${step >= 1 ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 1 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
+                }`}>
+                  1
                 </div>
-              ))}
+                <span className="ml-2 text-sm font-medium">Business Type</span>
+              </div>
+              <div className={`w-8 h-0.5 ${step >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+              <div className={`flex items-center ${step >= 2 ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 2 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
+                }`}>
+                  2
+                </div>
+                <span className="ml-2 text-sm font-medium">Plan Selection</span>
+              </div>
+              <div className={`w-8 h-0.5 ${step >= 3 ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
+              <div className={`flex items-center ${step >= 3 ? 'text-blue-600' : 'text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
+                  step >= 3 ? 'border-blue-600 bg-blue-600 text-white' : 'border-gray-300'
+                }`}>
+                  3
+                </div>
+                <span className="ml-2 text-sm font-medium">Account Info</span>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Signup Form */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              Create Your Account
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter your full name"
+        {/* Step 1: Business Type Selection */}
+        {step === 1 && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                What type of business do you run?
+              </h2>
+              <p className="text-gray-600 mb-8">
+                This helps us personalize your experience and recommend the right features.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {businessTypes.map((businessType) => (
+                <BusinessTypeCard 
+                  key={businessType.id}
+                  businessType={businessType}
+                  isSelected={formData.businessType === businessType.id}
+                  onSelect={handleBusinessTypeSelect}
                 />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              ))}
+            </div>
+            
+            {errors.businessType && (
+              <p className="text-sm text-red-600 text-center">{errors.businessType}</p>
+            )}
+            
+            <div className="flex justify-center">
+              <button
+                onClick={() => setStep(2)}
+                disabled={!formData.businessType}
+                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Continue to Plan Selection
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Step 2: Plan Selection */}
+        {step === 2 && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+                Choose Your Plan
+              </h2>
+              <p className="text-gray-600 mb-8">
+                {formData.businessType && (
+                  <>
+                    Recommended for {businessTypes.find(bt => bt.id === formData.businessType)?.name}: 
+                    <span className="font-semibold text-blue-600 ml-1">
+                      {businessTypes.find(bt => bt.id === formData.businessType)?.recommendedPlan.charAt(0).toUpperCase() + 
+                       businessTypes.find(bt => bt.id === formData.businessType)?.recommendedPlan.slice(1)} Plan
+                    </span>
+                  </>
                 )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter your email"
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {plans.map((plan) => (
+                <PlanCard 
+                  key={plan.id}
+                  plan={plan}
+                  isSelected={selectedPlan === plan.id}
+                  onSelect={setSelectedPlan}
                 />
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-                )}
+              ))}
+            </div>
+            
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={() => setStep(1)}
+                className="text-blue-600 hover:text-blue-700 px-6 py-2"
+              >
+                ← Back to Business Type
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Continue to Account Setup
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Step 3: Account Information */}
+        {step === 3 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Selected Plan Summary */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Selected Plan
+                </h2>
+                <button
+                  onClick={() => setStep(2)}
+                  className="text-blue-600 hover:text-blue-700 text-sm"
+                >
+                  Change Plan
+                </button>
               </div>
+              <div className="bg-white p-6 rounded-lg shadow-lg">
+                {(() => {
+                  const plan = plans.find(p => p.id === selectedPlan);
+                  const businessType = businessTypes.find(bt => bt.id === formData.businessType);
+                  return (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xl font-bold text-gray-900">{plan?.name}</h3>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-blue-600">${plan?.price}</div>
+                          <div className="text-sm text-gray-500">per month</div>
+                        </div>
+                      </div>
+                      <p className="text-gray-600">{plan?.description}</p>
+                      <div className="border-t pt-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Perfect for {businessType?.name}</h4>
+                        <ul className="space-y-1">
+                          {businessType?.features.slice(0, 3).map((feature, index) => (
+                            <li key={index} className="flex items-center text-sm">
+                              <Check className="w-4 h-4 text-green-500 mr-2" />
+                              <span className="text-gray-700">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
 
-              {/* Phone */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number (Optional)
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter your phone number"
-                />
+            {/* Account Form */}
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Store & Account Information
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="text-blue-600 hover:text-blue-700 text-sm"
+                >
+                  ← Back to Plans
+                </button>
               </div>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Store Name */}
+                <div>
+                  <label htmlFor="storeName" className="block text-sm font-medium text-gray-700 mb-2">
+                    Store Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="storeName"
+                    name="storeName"
+                    value={formData.storeName}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.storeName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter your store name (e.g., Krishna Garments)"
+                  />
+                  {formData.storeName && (
+                    <p className="mt-1 text-xs text-gray-600">
+                      Your store will be available at: <span className="font-mono text-blue-600">{subdomain}.dealndone.com</span>
+                      {subdomainAvailable === false && (
+                        <span className="text-red-500 ml-2">(Not available)</span>
+                      )}
+                      {subdomainAvailable === true && (
+                        <span className="text-green-500 ml-2">✓ Available</span>
+                      )}
+                    </p>
+                  )}
+                  {errors.storeName && (
+                    <p className="mt-1 text-sm text-red-600">{errors.storeName}</p>
+                  )}
+                </div>
+                
+                {/* Full Name */}
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter your full name"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+                  )}
+                </div>
 
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Create a password"
-                />
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-                )}
-              </div>
+                {/* Email */}
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter your email address"
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                  )}
+                </div>
 
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Confirm your password"
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-                )}
-              </div>
+                {/* Phone */}
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Phone Number (Optional)
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter your phone number"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.password ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Create a secure password (min 8 characters)"
+                  />
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirm Password <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Confirm your password"
+                  />
+                  {errors.confirmPassword && (
+                    <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+                  )}
+                </div>
 
               {/* Terms and Conditions */}
               <div className="flex items-start">
@@ -412,29 +775,30 @@ const SignUp = () => {
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     Creating Account...
                   </div>
                 ) : (
-                  'Create Account'
+                  'Create Account & Start Free Trial'
                 )}
-              </button>
-            </form>
+                </button>
+              </form>
 
-            {/* Login Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <a href="/login" className="text-blue-600 hover:text-blue-500 font-medium">
-                  Sign in
-                </a>
-              </p>
+              {/* Login Link */}
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-600">
+                  Already have an account?{' '}
+                  <button 
+                    onClick={() => onNavigate('login')}
+                    className="text-blue-600 hover:text-blue-500 font-medium"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,328 +1,215 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const Login = ({ onNavigate }) => {
+const Login = ({ onNavigate, onLogin, onDemoLogin, subdomain, currentStore, user }) => {
   const [formData, setFormData] = useState({
-    storeName: '',
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
-  const [errors, setErrors] = useState({});
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [showMFA, setShowMFA] = useState(false);
-  const [mfaCode, setMfaCode] = useState('');
+  const [error, setError] = useState('');
+  const [storeInfo, setStoreInfo] = useState(null);
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // At least one of store name or email is required
-    if (!formData.storeName.trim() && !formData.email.trim()) {
-      newErrors.storeName = 'Please enter either store name or email';
-      newErrors.email = 'Please enter either store name or email';
-    } else {
-      // If store name is provided, validate it
-      if (formData.storeName.trim() && formData.storeName.includes(' ')) {
-        newErrors.storeName = 'Store name cannot contain spaces';
-      }
+  // Get current subdomain
+  useEffect(() => {
+    const getSubdomain = () => {
+      const host = window.location.host; // e.g., "honey.dealndone.com"
+      const parts = host.split('.');
       
-      // If email is provided, validate it
-      if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'Please enter a valid email address';
+      // If it's a subdomain (more than 2 parts and not www)
+      if (parts.length > 2 && parts[0] !== 'www' && !host.includes('localhost')) {
+        return parts[0]; // Returns "honey"
       }
-    }
+      return null; // No subdomain
+    };
 
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const subdomain = getSubdomain();
     
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+    // If we're on a subdomain, fetch store info
+    if (subdomain) {
+      fetchStoreInfo(subdomain);
+    } else {
+      setStoreInfo({ name: 'Main Portal', subdomain: null });
+    }
+  }, []);
+
+  const fetchStoreInfo = async (subdomain) => {
+    try {
+      // For now, just set basic store info since we don't have this endpoint
+      setStoreInfo({ name: subdomain, subdomain });
+    } catch (error) {
+      console.error('Failed to fetch store info:', error);
+      setStoreInfo({ name: subdomain, subdomain });
     }
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
     setIsLoading(true);
+    setError('');
+    setSuccessMessage('');
 
     try {
-      // Real API call to backend
-              const response = await fetch('http://127.0.0.1:8005/api/auth/login', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          identifier: formData.storeName || formData.email,
+          identifier: formData.email,
           password: formData.password
-        })
+        }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        // Handle different types of error responses
-        let errorMessage = 'Login failed';
-        if (data.detail) {
-          errorMessage = data.detail;
-        } else if (data.message) {
-          errorMessage = data.message;
-        } else if (typeof data === 'object') {
-          errorMessage = JSON.stringify(data);
+      if (response.ok && (data.access_token || data.token)) {
+        // Store authentication data
+        const token = data.access_token || data.token;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Store plan information for settings page
+        if (data.user.planType) {
+          localStorage.setItem('userPlan', data.user.planType);
         }
-        throw new Error(errorMessage);
-      }
-
-      // Check if email verification is required
-      if (data.requires_verification) {
-        setErrors({ submit: data.message });
-        return;
-      }
-
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
-      // Get current URL to determine the correct redirect
-      // const currentUrl = window.location.origin; // Commented out unused variable
-      
-      // Redirect based on role
-      if (data.user.role === 'superadmin') {
-        // For demo, redirect to owner dashboard
-        onNavigate('owner-dashboard');
+        
+        // Use onLogin callback if provided, otherwise redirect
+        if (onLogin) {
+          onLogin({
+            ...data.user,
+            token: token,
+            store: data.store,
+            plan: data.user.planType
+          });
+        } else {
+          // Redirect based on user role
+          if (data.user.role === 'owner' || data.user.role === 'admin') {
+            window.location.href = '/dashboard';
+          } else {
+            window.location.href = '/pos';
+          }
+        }
       } else {
-        // Redirect to main dashboard with store context
-        onNavigate('store-dashboard');
+        setError(data.detail || data.message || 'Invalid email or password. Please try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ submit: error.message || 'Network error. Please check your connection and try again.' });
+      setError('Network error. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleMFASubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!mfaCode.trim()) {
-      setErrors({ mfa: 'Please enter the MFA code' });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      // Mock MFA verification
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-      
-      // Simulate successful MFA verification
-      const mockResponse = {
-        success: true,
-        user: {
-          email: formData.email,
-          storeName: formData.storeName,
-          role: 'superadmin'
-        }
+  const handleDemoLogin = () => {
+    // Use the demo login handler from App.js if available
+    if (onDemoLogin) {
+      onDemoLogin();
+    } else {
+      // Fallback demo login
+      const demoUser = {
+        id: 1,
+        name: 'Demo User',
+        email: 'demo@dealndone.com',
+        role: 'owner',
+        store: storeInfo?.name || 'Demo Store',
+        subdomain: storeInfo?.subdomain || 'demo'
       };
-
-      // Store user data in localStorage
-      localStorage.setItem('user', JSON.stringify(mockResponse.user));
       
-      // Redirect based on role
-      if (mockResponse.user.role === 'superadmin') {
-        onNavigate('owner-dashboard');
-      } else {
-        onNavigate('store-dashboard');
-      }
-    } catch (error) {
-      console.error('MFA verification error:', error);
-      setErrors({ mfa: 'Network error. Please try again.' });
-    } finally {
-      setIsLoading(false);
+      localStorage.setItem('token', 'demo-token-12345');
+      localStorage.setItem('user', JSON.stringify(demoUser));
+      
+      window.location.href = '/dashboard';
     }
   };
 
-  const handleBackToLogin = () => {
-    setShowMFA(false);
-    setMfaCode('');
-    setErrors({});
-  };
-
-  const handleSignupClick = () => {
-    onNavigate('landing');
-  };
-
-  const handleBypassLogin = () => {
-    // Create mock user data for bypass
-    const mockUser = {
-      id: 'bypass-user-001',
-      email: 'demo@dealndone.com',
-      store_name: 'dealndone',
-      role: 'superadmin',
-      org_id: 'bypass-org-001',
-      plan: {
-        type: 'enterprise',
-        limits: {
-          outlets: 10,
-          registers: 50,
-          products: 10000,
-          employees: 100
-        }
-      }
-    };
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
     
-    // Store user data in localStorage
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    
-    // Redirect to owner dashboard
-    onNavigate('owner-dashboard');
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
   };
 
-  if (showMFA) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Two-Factor Authentication
-            </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
-              Enter the 6-digit code from your authenticator app
-            </p>
-          </div>
-          
-          <form className="mt-8 space-y-6" onSubmit={handleMFASubmit}>
-            <div>
-              <label htmlFor="mfa-code" className="sr-only">
-                MFA Code
-              </label>
-              <input
-                id="mfa-code"
-                name="mfaCode"
-                type="text"
-                required
-                value={mfaCode}
-                onChange={(e) => setMfaCode(e.target.value)}
-                className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="000000"
-                maxLength="6"
-                pattern="[0-9]{6}"
-              />
-              {errors.mfa && (
-                <p className="mt-1 text-sm text-red-600">{errors.mfa}</p>
-              )}
-            </div>
+  const handleForgotPassword = () => {
+    // Pass subdomain context to forgot password
+    onNavigate('forgot-password', { subdomain: storeInfo?.subdomain });
+  };
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Verifying...' : 'Verify Code'}
-              </button>
-            </div>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleBackToLogin}
-                className="text-indigo-600 hover:text-indigo-500 text-sm"
-              >
-                ← Back to Login
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
+  const handleCreateAccount = () => {
+    if (storeInfo?.subdomain) {
+      // If on a subdomain, go to signup for that store
+      onNavigate('signup');
+    } else {
+      // If on main domain, go to landing page to create store
+      onNavigate('landing');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="flex justify-center">
-            <h1 className="text-4xl font-bold text-gray-900">Deal n Done</h1>
+        {/* Logo and Brand */}
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+            <span className="material-icons text-white text-2xl">store</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            {storeInfo ? `Welcome to ${storeInfo.name}` : 'Welcome to Deal n Done'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Access your store dashboard and manage your business
+          <p className="mt-2 text-sm text-gray-600">
+            {storeInfo 
+              ? `Sign in to your ${storeInfo.name} store management dashboard`
+              : 'Sign in to your store management dashboard'
+            }
           </p>
+          {storeInfo?.subdomain && (
+            <div className="mt-2 text-xs text-gray-500">
+              Store URL: {storeInfo.subdomain}.dealndone.com
+            </div>
+          )}
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
-            {/* Store Name */}
-            <div>
-              <label htmlFor="store-name" className="block text-sm font-medium text-gray-700">
-                Store Name (or Email)
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="store-name"
-                  name="storeName"
-                  type="text"
-                  value={formData.storeName}
-                  onChange={handleInputChange}
-                  className={`appearance-none rounded-lg relative block w-full px-3 py-3 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:z-10 sm:text-sm ${
-                    errors.storeName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="mystore or your@email.com"
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500 text-sm">.dealndone.com</span>
-                </div>
-              </div>
-              {errors.storeName && (
-                <p className="mt-1 text-sm text-red-600">{errors.storeName}</p>
-              )}
-            </div>
+        {/* Success Message */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 rounded-md p-4">
+            <p className="text-sm text-green-600">{successMessage}</p>
+          </div>
+        )}
+        
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
-            {/* Email */}
+        {/* Sign In Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-gray-700">
-                Email address (optional if using store name)
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email address
               </label>
               <input
-                id="email-address"
+                id="email"
                 name="email"
                 type="email"
                 autoComplete="email"
+                required
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`appearance-none rounded-lg relative block w-full px-3 py-3 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:z-10 sm:text-sm ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="your@email.com"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter your email"
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
             </div>
 
-            {/* Password */}
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -335,14 +222,9 @@ const Login = ({ onNavigate }) => {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`appearance-none rounded-lg relative block w-full px-3 py-3 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:z-10 sm:text-sm ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="••••••••"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter your password"
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-              )}
             </div>
           </div>
 
@@ -350,9 +232,11 @@ const Login = ({ onNavigate }) => {
             <div className="flex items-center">
               <input
                 id="remember-me"
-                name="remember-me"
+                name="rememberMe"
                 type="checkbox"
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Remember me
@@ -360,51 +244,82 @@ const Login = ({ onNavigate }) => {
             </div>
 
             <div className="text-sm">
-              <button type="button" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <button 
+                type="button"
+                className="font-medium text-blue-600 hover:text-blue-500"
+                onClick={handleForgotPassword}
+              >
                 Forgot your password?
               </button>
             </div>
           </div>
 
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
-          )}
-
-          <div className="space-y-3">
+          <div>
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? (
+                <span className="flex items-center">
+                  <span className="material-icons animate-spin mr-2">refresh</span>
+                  Signing in...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <span className="material-icons mr-2">login</span>
+                  Sign in
+                </span>
+              )}
             </button>
+          </div>
+        </form>
             
-            {/* Bypass Login Button */}
+        {/* Demo Login Button */}
+        <div className="text-center">
             <button
               type="button"
-              onClick={handleBypassLogin}
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            onClick={handleDemoLogin}
+            className="w-full py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
             >
-              🚀 Demo Mode - Skip Login
+            Demo Login (Skip Authentication)
             </button>
           </div>
 
+        {/* Divider */}
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-500">
+              New to Deal n Done?
+            </span>
+          </div>
+        </div>
+
+        {/* Sign Up Link */}
           <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
               <button
                 type="button"
-                onClick={handleSignupClick}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            onClick={handleCreateAccount}
               >
-                Create one now
+            {storeInfo?.subdomain 
+              ? 'Sign up for this store' 
+              : 'Create your store account'
+            }
               </button>
-            </p>
+        </div>
+
+        {/* Demo Credentials */}
+        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</h3>
+          <div className="text-xs text-blue-700 space-y-1">
+            <p><strong>Email:</strong> demo@dealndone.com</p>
+            <p><strong>Password:</strong> demo123</p>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

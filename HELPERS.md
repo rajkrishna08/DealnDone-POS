@@ -268,7 +268,7 @@ This guide covers all the development tools, helpers, and utilities used in the 
 
 ### **Daily Development Workflow**
 1. **Start Development Environment**
-   ```bash
+```bash
    # Open Cursor AI or VS Code
    # Clone repository
    git clone https://github.com/your-org/dealndone2025.git
@@ -283,7 +283,7 @@ This guide covers all the development tools, helpers, and utilities used in the 
    ```
 
 3. **Start Frontend**
-   ```bash
+```bash
    cd frontend
    npm install
    npm start
@@ -295,7 +295,7 @@ This guide covers all the development tools, helpers, and utilities used in the 
    - Use Postman for API testing
 
 5. **Testing**
-   ```bash
+```bash
    # Backend tests
    cd backend
    python -m pytest
@@ -306,7 +306,7 @@ This guide covers all the development tools, helpers, and utilities used in the 
    ```
 
 6. **Deployment**
-   ```bash
+```bash
    # Push to GitHub triggers CI/CD
    git add .
    git commit -m "Feature: description"

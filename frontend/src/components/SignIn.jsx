@@ -1,36 +1,121 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const SignIn = () => {
+const SignIn = ({ onNavigate, onLogin }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false
   });
-
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [storeInfo, setStoreInfo] = useState(null);
+
+  // Get current subdomain
+  useEffect(() => {
+    const getSubdomain = () => {
+      const host = window.location.host; // e.g., "honey.dealndone.com"
+      const parts = host.split('.');
+      
+      // If it's a subdomain (more than 2 parts and not www)
+      if (parts.length > 2 && parts[0] !== 'www' && !host.includes('localhost')) {
+        return parts[0]; // Returns "honey"
+      }
+      return null; // No subdomain
+    };
+
+    const subdomain = getSubdomain();
+    
+    // If we're on a subdomain, fetch store info
+    if (subdomain) {
+      fetchStoreInfo(subdomain);
+    } else {
+      setStoreInfo({ name: 'Main Portal', subdomain: null });
+    }
+  }, []);
+
+  const fetchStoreInfo = async (subdomain) => {
+    try {
+      // For now, just set basic store info since we don't have this endpoint
+      setStoreInfo({ name: subdomain, subdomain });
+    } catch (error) {
+      console.error('Failed to fetch store info:', error);
+      setStoreInfo({ name: subdomain, subdomain });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful login
-    const user = {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: formData.email,
+          password: formData.password,
+          subdomain: storeInfo?.subdomain // Include subdomain in login request
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.token) {
+        // Store authentication data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Use onLogin callback if provided
+        if (onLogin) {
+          onLogin({
+            ...data.user,
+            token: data.token
+          });
+        } else {
+          // Fallback: redirect based on user role
+          if (data.user.role === 'owner' || data.user.role === 'admin' || data.user.role === 'retailer') {
+            onNavigate('store-dashboard');
+          } else {
+            onNavigate('pos');
+          }
+        }
+      } else {
+        setError(data.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoLogin = () => {
+    // Demo login bypass - create mock user data
+    const demoUser = {
       id: 1,
-      name: 'Nick',
-      email: formData.email,
-      role: 'Store Manager',
-      store: 'Deal n Done, Inc.'
+      name: 'Demo User',
+      email: 'demo@example.com',
+      role: 'owner',
+      store: storeInfo?.name || 'Demo Store',
+      subdomain: storeInfo?.subdomain || 'demo'
     };
     
-    // Store user data (in real app, this would be handled by auth context)
-    localStorage.setItem('user', JSON.stringify(user));
+    // Store demo authentication data
+    localStorage.setItem('token', 'demo-token-12345');
+    localStorage.setItem('user', JSON.stringify(demoUser));
     
-    setIsLoading(false);
-    // In real app, this would redirect to dashboard
-    window.location.reload();
+    // Use onLogin callback if provided
+    if (onLogin) {
+      onLogin(demoUser);
+    } else {
+      // Fallback: use navigation
+      onNavigate('store-dashboard');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -39,6 +124,26 @@ const SignIn = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear error when user starts typing
+    if (error) {
+      setError('');
+    }
+  };
+
+  const handleForgotPassword = () => {
+    // Pass subdomain context to forgot password
+    onNavigate('forgot-password', { subdomain: storeInfo?.subdomain });
+  };
+
+  const handleCreateAccount = () => {
+    if (storeInfo?.subdomain) {
+      // If on a subdomain, go to signup for that store
+      onNavigate('signup');
+    } else {
+      // If on main domain, go to landing page to create store
+      onNavigate('landing');
+    }
   };
 
   return (
@@ -50,12 +155,27 @@ const SignIn = () => {
             <span className="material-icons text-white text-2xl">store</span>
           </div>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">
-            Welcome back to Deal n Done
+            {storeInfo ? `Welcome to ${storeInfo.name}` : 'Welcome to Deal n Done'}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Sign in to your store management dashboard
+            {storeInfo 
+              ? `Sign in to your ${storeInfo.name} store management dashboard`
+              : 'Sign in to your store management dashboard'
+            }
           </p>
+          {storeInfo?.subdomain && (
+            <div className="mt-2 text-xs text-gray-500">
+              Store URL: {storeInfo.subdomain}.dealndone.com
+            </div>
+          )}
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
         {/* Sign In Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -114,7 +234,7 @@ const SignIn = () => {
               <button 
                 type="button"
                 className="font-medium text-blue-600 hover:text-blue-500"
-                onClick={() => console.log('Forgot password clicked')}
+                onClick={handleForgotPassword}
               >
                 Forgot your password?
               </button>
@@ -159,9 +279,12 @@ const SignIn = () => {
           <button
             type="button"
             className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-            onClick={() => console.log('Create account clicked')}
+            onClick={handleCreateAccount}
           >
-            Create your store account
+            {storeInfo?.subdomain 
+              ? 'Sign up for this store' 
+              : 'Create your store account'
+            }
           </button>
         </div>
 
@@ -169,9 +292,20 @@ const SignIn = () => {
         <div className="mt-8 p-4 bg-blue-50 rounded-lg">
           <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</h3>
           <div className="text-xs text-blue-700 space-y-1">
-            <p><strong>Email:</strong> demo@dealndone.com</p>
+            <p><strong>Email:</strong> demo@example.com</p>
             <p><strong>Password:</strong> demo123</p>
           </div>
+        </div>
+
+        {/* Demo Login Button */}
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+            onClick={handleDemoLogin}
+          >
+            Use Demo Login
+          </button>
         </div>
       </div>
     </div>

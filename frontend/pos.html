@@ -441,6 +441,15 @@
                 }
             } catch (error) {
                 console.error('Failed to load user info:', error);
+                // Fallback to localStorage data
+                const storedUserInfo = localStorage.getItem('user_info');
+                if (storedUserInfo) {
+                    const userData = JSON.parse(storedUserInfo);
+                    document.getElementById('user-name').textContent = userData.business_name || 'Demo Store';
+                    document.getElementById('user-plan').textContent = (userData.plan_type || 'professional').toUpperCase() + ' PLAN';
+                    document.getElementById('user-subdomain').textContent = `${userData.subdomain || 'demo-store'}.dealndone.com`;
+                    userInfo = userData;
+                }
             }
         }
         
@@ -505,7 +514,49 @@
                 }
             } catch (error) {
                 console.error('Failed to load subscription:', error);
+                // Fallback to localStorage data
+                const storedUserInfo = localStorage.getItem('user_info');
+                if (storedUserInfo) {
+                    const userData = JSON.parse(storedUserInfo);
+                    const planDetails = userData.plan_details || getPlanDetails(userData.plan_type);
+                    
+                    if (planDetails) {
+                        document.getElementById('current-plan-name').textContent = planDetails.name;
+                        document.getElementById('current-plan-price').textContent = `$${planDetails.price}/month`;
+                        
+                        const featuresList = document.getElementById('current-plan-features');
+                        featuresList.innerHTML = '';
+                        planDetails.features.forEach(feature => {
+                            const li = document.createElement('li');
+                            li.textContent = feature;
+                            featuresList.appendChild(li);
+                        });
+                    }
+                }
             }
+        }
+
+        // Helper function to get plan details
+        function getPlanDetails(planType) {
+            const planDefinitions = {
+                'basic': {
+                    name: 'Starter',
+                    price: 29,
+                    features: ['Up to 500 products', 'Basic sales tracking', 'Email support', '2 user accounts', 'Basic reporting']
+                },
+                'professional': {
+                    name: 'Professional',
+                    price: 79,
+                    features: ['Up to 5,000 products', 'Advanced analytics', 'Priority support', '10 user accounts', 'Inventory management', 'Custom reports', 'API access']
+                },
+                'enterprise': {
+                    name: 'Enterprise',
+                    price: 199,
+                    features: ['Unlimited products', 'Custom integrations', '24/7 phone support', 'Unlimited users', 'Advanced reporting', 'Multi-location support', 'White-label branding', 'Dedicated account manager']
+                }
+            };
+            
+            return planDefinitions[planType] || planDefinitions['professional'];
         }
         
         // Load stats
@@ -680,7 +731,82 @@
                     document.getElementById('subscription-content').innerHTML = modalContent;
                 }
             } catch (error) {
-                document.getElementById('subscription-content').innerHTML = '<p>Error loading subscription details.</p>';
+                console.error('Failed to load subscription modal:', error);
+                // Fallback to localStorage data with improved plan display
+                const storedUserInfo = localStorage.getItem('user_info');
+                if (storedUserInfo) {
+                    const userData = JSON.parse(storedUserInfo);
+                    const planDetails = userData.plan_details || getPlanDetails(userData.plan_type);
+                    
+                    let modalContent = `
+                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h3 style="margin: 0 0 10px 0;">${planDetails.name}</h3>
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <div style="font-size: 24px; font-weight: bold;">$${planDetails.price}/month</div>
+                                    <div style="opacity: 0.9;">${userData.business_name}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 14px; opacity: 0.9;">Your Store URL:</div>
+                                    <div style="font-weight: 600;">${userData.subdomain}.dealndone.com</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4>Plan Features</h4>
+                            <ul style="font-size: 14px; color: #666; margin: 10px 0; padding-left: 20px;">
+                                ${planDetails.features.map(feature => `<li>${feature}</li>`).join('')}
+                            </ul>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <h4>Demo Mode</h4>
+                            <p style="margin: 0; color: #666; font-size: 14px;">
+                                This is a demo account. In a real environment, you would see detailed usage statistics, 
+                                plan limits, and upgrade options here.
+                            </p>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <h4>Available Plans</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    `;
+                    
+                    // Show all available plans
+                    const allPlans = [
+                        { key: 'basic', name: 'Starter', price: 29, features: ['Up to 500 products', 'Basic sales tracking', 'Email support'] },
+                        { key: 'professional', name: 'Professional', price: 79, features: ['Up to 5,000 products', 'Advanced analytics', 'Priority support'] },
+                        { key: 'enterprise', name: 'Enterprise', price: 199, features: ['Unlimited products', 'Custom integrations', '24/7 phone support'] }
+                    ];
+                    
+                    allPlans.forEach(plan => {
+                        const isCurrentPlan = plan.key === userData.plan_type;
+                        modalContent += `
+                            <div style="background: ${isCurrentPlan ? '#e3f2fd' : 'white'}; border: 2px solid ${isCurrentPlan ? '#2196f3' : '#ddd'}; border-radius: 8px; padding: 15px; position: relative;">
+                                ${isCurrentPlan ? '<div style="position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #2196f3; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: bold;">CURRENT PLAN</div>' : ''}
+                                <h5 style="margin: 0 0 10px 0; color: #333;">${plan.name}</h5>
+                                <div style="font-size: 20px; font-weight: bold; color: #667eea; margin-bottom: 5px;">$${plan.price}/month</div>
+                                <ul style="font-size: 12px; color: #666; margin: 10px 0; padding-left: 15px;">
+                                    ${plan.features.map(feature => `<li>${feature}</li>`).join('')}
+                                </ul>
+                                ${isCurrentPlan ? 
+                                    '<button style="background: #ccc; color: #666; border: none; padding: 8px 16px; border-radius: 4px; cursor: not-allowed; width: 100%;">Current Plan</button>' :
+                                    '<button style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%;">Demo Mode</button>'
+                                }
+                            </div>
+                        `;
+                    });
+                    
+                    modalContent += `
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.getElementById('subscription-content').innerHTML = modalContent;
+                } else {
+                    document.getElementById('subscription-content').innerHTML = '<p>Error loading subscription details.</p>';
+                }
             }
             
             document.getElementById('subscription-modal').style.display = 'block';

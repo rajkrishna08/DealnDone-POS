@@ -91,6 +91,205 @@
   }
 }
 
+/* POS Dashboard UI Fixes */
+.pos-dashboard {
+  @apply min-h-screen bg-gray-50;
+  display: flex;
+  flex-direction: column;
+}
+
+.pos-header {
+  @apply bg-white border-b border-gray-200 px-6 py-4;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.pos-main-content {
+  @apply flex-1 flex;
+  min-height: calc(100vh - 80px);
+}
+
+.pos-sidebar {
+  @apply w-64 bg-white border-r border-gray-200;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+.pos-content {
+  @apply flex-1 ml-64 p-6;
+  min-height: calc(100vh - 80px);
+}
+
+.pos-cart {
+  @apply w-80 bg-white border-l border-gray-200;
+  position: fixed;
+  top: 80px;
+  right: 0;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+.pos-products-grid {
+  @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4;
+  margin-right: 320px;
+}
+
+.pos-product-card {
+  @apply bg-white border border-gray-200 rounded-lg p-4 cursor-pointer transition-all duration-200;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pos-product-card:hover {
+  @apply shadow-md transform -translate-y-1;
+}
+
+.pos-cart-item {
+  @apply flex items-center justify-between p-3 border-b border-gray-100;
+}
+
+.pos-cart-total {
+  @apply bg-gray-50 p-4 border-t border-gray-200;
+  position: sticky;
+  bottom: 0;
+}
+
+/* Responsive fixes */
+@media (max-width: 1024px) {
+  .pos-sidebar {
+    @apply w-56;
+  }
+  
+  .pos-content {
+    @apply ml-56;
+  }
+  
+  .pos-cart {
+    @apply w-72;
+  }
+  
+  .pos-products-grid {
+    margin-right: 288px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pos-sidebar {
+    @apply w-full h-auto;
+    position: relative;
+    top: 0;
+  }
+  
+  .pos-content {
+    @apply ml-0;
+  }
+  
+  .pos-cart {
+    @apply w-full;
+    position: relative;
+    top: 0;
+  }
+  
+  .pos-products-grid {
+    margin-right: 0;
+    @apply grid-cols-2;
+  }
+  
+  .pos-main-content {
+    @apply flex-col;
+  }
+}
+
+/* Fix for distorted layouts */
+.pos-layout-fix {
+  @apply overflow-hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.pos-container-fix {
+  @apply relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.pos-grid-fix {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .pos-grid-fix {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pos-grid-fix {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 1280px) {
+  .pos-grid-fix {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
+}
+
+/* Fix for flexbox issues */
+.pos-flex-fix {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.pos-flex-row-fix {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+
+/* Fix for overflow issues */
+.pos-overflow-fix {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Fix for positioning issues */
+.pos-relative-fix {
+  position: relative;
+}
+
+.pos-absolute-fix {
+  position: absolute;
+}
+
+.pos-fixed-fix {
+  position: fixed;
+}
+
+/* Fix for sizing issues */
+.pos-w-full-fix {
+  width: 100%;
+}
+
+.pos-h-full-fix {
+  height: 100%;
+}
+
+.pos-min-h-screen-fix {
+  min-height: 100vh;
+}
+
 /* Deal n Done, Inc. Design System */
 @layer base {
   :root {
@@ -116,6 +315,22 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    height: 100%;
+  }
+  
+  #root {
+    height: 100%;
+    width: 100%;
   }
 }
 
